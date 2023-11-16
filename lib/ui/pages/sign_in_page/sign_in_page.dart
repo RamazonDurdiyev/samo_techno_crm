@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_page.dart';
 import 'package:samo_techno_crm/ui/pages/sign_in_page/sign_in_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/sign_in_page/sign_in_event.dart';
@@ -62,58 +63,63 @@ class SignInPage extends StatelessWidget {
 
   _buildSignButton(BuildContext context, SignInBloc bloc,
       GlobalKey<FormState> phoneKey, GlobalKey<FormState> passwordKey) {
-    return BlocBuilder<SignInBloc, SignInState>(
-        bloc: bloc,
-        builder: (context, state) {
-          final isLoading = state is LoginState && state.state == State.loading;
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: ElevatedButton(
-              onPressed: () {
-                if (phoneKey.currentState!.validate() &&
-                    passwordKey.currentState!.validate()) {
-                  bloc.add(LoginEvent());
-                  
-                  // isLoading
-                  //     ? const CircularProgressIndicator.adaptive()
-                  //     : bloc.isUserAvailable == true
-                  //         ? Navigator.pushAndRemoveUntil(context,
-                  //             MaterialPageRoute(
-                  //             builder: (context) {
-                  //               return const HomePage();
-                  //             },
-                  //           ), (route) => false)
-                  //         : null;
-                  // if (!isLoading && bloc.user.id  != null) {
-                  //     Navigator.push(
-                  //       context,
-                  //       MaterialPageRoute(
-                  //         builder: (context) {
-                  //           return const HomePage();
-                  //         },
-                  //       ),
-                  //     );
-                  //   }
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(16),
-                  ),
-                ),
-                backgroundColor: Colors.indigo,
-                fixedSize: const Size(
-                  double.maxFinite,
-                  60,
-                ),
-              ),
-              child: const Text(
-                "Sign In",
+    return BlocListener<SignInBloc, SignInState>(
+      bloc: bloc,
+      listenWhen: (previous, current) => current is LoginState,
+      listener: (context, state) {
+        final loadedSucces = state is LoginState &&
+            state.state == State.loaded &&
+            bloc.user.id != null;
+        final isError = state is LoginState && state.state == State.error;
+        if (loadedSucces == true) {
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+            builder: (context) {
+              return const HomePage();
+            },
+          ), (route) => false);
+        } else if (isError == true) {
+          Fluttertoast.showToast(
+            msg: "Something went wrong!",
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            gravity: ToastGravity.TOP,
+          );
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ElevatedButton(
+          onPressed: () {
+            if (phoneKey.currentState!.validate() &&
+                passwordKey.currentState!.validate()) {
+              bloc.add(LoginEvent());
+              // if (!isLoading && bloc.user.id != null) {
+              //   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
+              //     builder: (context) {
+              //       return const HomePage();
+              //     },
+              //   ), (route) => false);
+              // }
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(
+                Radius.circular(16),
               ),
             ),
-          );
-        });
+            backgroundColor: Colors.indigo,
+            fixedSize: const Size(
+              double.maxFinite,
+              60,
+            ),
+          ),
+          child: const Text(
+            "Sign In",
+          ),
+        ),
+      ),
+    );
   }
 
   _buildTextField(TextEditingController ctrl, SignInBloc bloc, String hint,
