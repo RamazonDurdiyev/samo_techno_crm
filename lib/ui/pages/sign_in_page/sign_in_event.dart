@@ -6,3 +6,8 @@ class LoginEvent extends SignInEvent{
   @override
   List<Object?> get props => [];
 }
+
+class SaveUserEvent extends SignInEvent{
+  @override
+  List<Object?> get props => [];
+}

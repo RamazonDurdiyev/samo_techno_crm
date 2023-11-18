@@ -1,7 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:samo_techno_crm/ui/pages/home_page/home_bloc.dart';
+import 'package:samo_techno_crm/ui/pages/home_page/home_event.dart';
+import 'package:samo_techno_crm/ui/pages/home_page/home_state.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_page.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_employees_page/confirm_employees_page.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_page.dart';
@@ -22,15 +25,17 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = AddProductBloc();
+    final bloc = HomeBloc();
     return Scaffold(
-      appBar: _buildAppBar(context, bloc),
-      drawer: _buildDrawer(context),
+      appBar: _buildAppBar(context),
+      drawer: _buildDrawer(context, bloc),
       body: _buildBody(context),
     );
   }
 
-  _buildAppBar(BuildContext context, AddProductBloc bloc) {
+  _buildAppBar(
+    BuildContext context,
+  ) {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
@@ -108,150 +113,155 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  _buildDrawer(BuildContext context) {
-    return Drawer(
-      backgroundColor: Colors.white,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(color: Colors.indigo),
-            accountName: const Text(
-              'Hamroyev Shavkat',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            accountEmail: Row(
-              children: [
-                const Text(
-                  'Shavkat3245@gmail.com',
-                  style: TextStyle(color: Colors.white),
+  _buildDrawer(BuildContext context, HomeBloc bloc) {
+    return BlocBuilder<HomeBloc, HomeState>(
+        bloc: bloc,
+        builder: (context, state) {
+          return Drawer(
+            backgroundColor: Colors.white,
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                UserAccountsDrawerHeader(
+                  decoration: const BoxDecoration(color: Colors.indigo),
+                  accountName: const Text(
+                    'Hamroyev Shavkat',
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
+                  accountEmail: Row(
+                    children: [
+                      const Text(
+                        'Shavkat3245@gmail.com',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      const Expanded(
+                        child: SizedBox(),
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return const ProfileSettings();
+                              },
+                            ),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 16,
+                      ),
+                    ],
+                  ),
+                  currentAccountPicture: const CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: Icon(
+                      Icons.person_2,
+                      size: 32,
+                      color: Colors.indigo,
+                    ),
+                    // backgroundImage: AssetImage('assets/images/logo.png'),
+                  ),
                 ),
-                const Expanded(
-                  child: SizedBox(),
-                ),
-                GestureDetector(
+                ListTile(
+                  leading: const Icon(
+                    Icons.settings,
+                    color: Colors.indigo,
+                  ),
+                  title: const Text(
+                    'Settings',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) {
-                          return const ProfileSettings();
+                          return const SettingsPage();
                         },
                       ),
                     );
                   },
-                  child: const Icon(
-                    Icons.edit,
-                    color: Colors.white,
-                  ),
                 ),
-                const SizedBox(
-                  width: 16,
+                const Divider(
+                  color: Colors.indigo,
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.exit_to_app,
+                    color: Colors.indigo,
+                  ),
+                  title: const Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return CupertinoAlertDialog(
+                          title: const Text(
+                            "Log out?",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          content: const Text(
+                            "Are you sure to log out your account?",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          actions: [
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                bloc.add(RemoveUserEvent());
+                                Navigator.pushAndRemoveUntil(context,
+                                    MaterialPageRoute(
+                                  builder: (context) {
+                                    return const SignInPage();
+                                  },
+                                ), (route) => false);
+                              },
+                              child: const Text(
+                                "Yes",
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
+                            ),
+                            CupertinoDialogAction(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text(
+                                "Cancel",
+                                style: TextStyle(
+                                    color: Colors.indigo,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               ],
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.person_2,
-                size: 32,
-                color: Colors.indigo,
-              ),
-              // backgroundImage: AssetImage('assets/images/logo.png'),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.settings,
-              color: Colors.indigo,
-            ),
-            title: const Text(
-              'Settings',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const SettingsPage();
-                  },
-                ),
-              );
-            },
-          ),
-          const Divider(
-            color: Colors.indigo,
-          ),
-          ListTile(
-            leading: const Icon(
-              Icons.exit_to_app,
-              color: Colors.indigo,
-            ),
-            title: const Text(
-              'Logout',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return CupertinoAlertDialog(
-                    title: const Text(
-                      "Log out?",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    content: const Text(
-                      "Are you sure to log out your account?",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    actions: [
-                      CupertinoDialogAction(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(context,
-                              MaterialPageRoute(
-                            builder: (context) {
-                              return const SignInPage();
-                            },
-                          ), (route) => false);
-                        },
-                        child: const Text(
-                          "Yes",
-                          style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
-                      CupertinoDialogAction(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          "Cancel",
-                          style: TextStyle(
-                              color: Colors.indigo,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 
   _buildSeparateText(String text) {

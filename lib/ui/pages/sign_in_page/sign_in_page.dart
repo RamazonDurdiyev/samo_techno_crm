@@ -76,7 +76,7 @@ class SignInPage extends StatelessWidget {
             builder: (context) {
               return const HomePage();
             },
-          ), (route) => false);
+          ), (route) => false).then((value) => bloc.add(SaveUserEvent()));
         } else if (isError == true) {
           Fluttertoast.showToast(
             msg: "Something went wrong!",
@@ -93,13 +93,7 @@ class SignInPage extends StatelessWidget {
             if (phoneKey.currentState!.validate() &&
                 passwordKey.currentState!.validate()) {
               bloc.add(LoginEvent());
-              // if (!isLoading && bloc.user.id != null) {
-              //   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
-              //     builder: (context) {
-              //       return const HomePage();
-              //     },
-              //   ), (route) => false);
-              // }
+              bloc.add(SaveUserEvent());
             }
           },
           style: ElevatedButton.styleFrom(

@@ -26,9 +26,8 @@ Dio addInterceptor(Dio dio) {
       return handler.next(options);
     },
     onError: (e, handler) async {
-      if (((e.response?.statusCode == 401) ||
-              (e.response?.statusCode == 403)) &&
-          !e.requestOptions.path.contains("login")) {
+      if (e.response?.statusCode == 413 &&
+        e.requestOptions.path.contains("login")) {
         final isTokenRefreshed = await tokenHelper.updateToken().future;
         if (isTokenRefreshed) {
           try {

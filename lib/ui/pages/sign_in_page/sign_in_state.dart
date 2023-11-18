@@ -16,4 +16,12 @@ class LoginState extends SignInState{
   List<Object?> get props => [state];
 }
 
+class SaveUserState extends SignInState{
+  final State state;
+
+  SaveUserState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
 enum State {initial,loading,loaded,error}
