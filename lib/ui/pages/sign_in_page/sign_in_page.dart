@@ -76,7 +76,8 @@ class SignInPage extends StatelessWidget {
             builder: (context) {
               return const HomePage();
             },
-          ), (route) => false).then((value) => bloc.add(SaveUserEvent()));
+          ), (route) => false);
+          bloc.add(SaveUserEvent());
         } else if (isError == true) {
           Fluttertoast.showToast(
             msg: "Something went wrong!",
@@ -93,7 +94,6 @@ class SignInPage extends StatelessWidget {
             if (phoneKey.currentState!.validate() &&
                 passwordKey.currentState!.validate()) {
               bloc.add(LoginEvent());
-              bloc.add(SaveUserEvent());
             }
           },
           style: ElevatedButton.styleFrom(

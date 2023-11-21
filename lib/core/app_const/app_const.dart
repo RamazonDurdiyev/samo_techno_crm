@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-const String BASE_URL = "https://e32c-95-214-210-35.ngrok-free.app/";
+const String BASE_URL = "https://908f-195-158-20-242.ngrok-free.app/";
 
 ///////// Categories API /////////
 const String GET_ALL_CATEGORIES_API =

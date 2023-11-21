@@ -18,16 +18,17 @@ Dio addInterceptor(Dio dio) {
   dio.interceptors.add(InterceptorsWrapper(
     onRequest: (options, handler) {
       final token = tokenHelper.getToken();
+      print("Network interceptor addInterceptor token => $token");
       if (token != null) {
         options.headers['Authorization'] = "Bearer $token";
-        options.headers['Accept'] = "Application/json";
+        // options.headers['Accept'] = "Application/json";
         return handler.next(options);
       }
       return handler.next(options);
     },
     onError: (e, handler) async {
-      if (e.response?.statusCode == 413 &&
-        e.requestOptions.path.contains("login")) {
+      if (e.response?.statusCode == 413) {
+        print("NetworkInterceptor need to refresh token");
         final isTokenRefreshed = await tokenHelper.updateToken().future;
         if (isTokenRefreshed) {
           try {
@@ -50,6 +51,7 @@ Dio addInterceptor(Dio dio) {
 
 _retry(RequestOptions requestOptions) {
   final client = Dio();
+  print("NetworkInterceptor _retry function called");
 
   final options = Options(
     method: requestOptions.method,
@@ -72,6 +74,7 @@ class RefreshTokenHelper {
     requests.add(completer);
     if (!isRefreshing) {
       isRefreshing = true;
+      print("Token helper _updateToken called");
       _updateToken();
     }
     return completer;
@@ -82,13 +85,15 @@ class RefreshTokenHelper {
 
     try {
       final lastToken = getToken(true);
-      final newToken = await loginRepo.refresh(lastToken ?? "");
+      final newToken = await loginRepo.refresh(lastToken);
       final prefs = await SharedPreferences.getInstance();
-      prefs.setString("new_token",json.encode(newToken));
-      
+      prefs.setString("user", json.encode(newToken));
+
+      print("_updateToken refresh completed in NetworkInterceptor");
       completeRefresh(true);
       return true;
     } catch (e) {
+      print("_updateToken refresh error NetworkInterceptor => $e");
       completeRefresh(false);
       return false;
     }
@@ -102,13 +107,15 @@ class RefreshTokenHelper {
     requests.clear();
   }
 
-   getToken([bool isRefresh = false]) async{
+  getToken([bool isRefresh = false]) async {
     final prefs = await SharedPreferences.getInstance();
-    
-
-    final loginData = prefs.getString("new_token");
+    final loginData = prefs.getString("user");
+    print("$loginData get token function loginData =========");
     if (loginData?.isNotEmpty == true) {
-      return isRefresh ? LoginData.fromJson(json.decode(loginData ?? "")).refreshToken : LoginData.fromJson(json.decode(loginData ?? "")).accessToken;
+      print("getToken LoginData is not empty");
+      return isRefresh
+          ? LoginData.fromJson(json.decode(loginData ?? "")).refreshToken
+          : LoginData.fromJson(json.decode(loginData ?? "")).accessToken;
     }
     return null;
   }

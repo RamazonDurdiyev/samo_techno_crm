@@ -19,9 +19,9 @@ class CategoryRepo {
     // if (await networkInfo.isConnected) {
       final res = await client.get(
         GET_ALL_CATEGORIES_API,
-        options: Options(
-          headers: {"Access-Control-Allow-Origin": ":*"},
-        ),
+        // options: Options(
+        //   headers: {"Authorization": "Bearer "},
+        // ),
       );
       if (kDebugMode) {
         print("fetchCategories data => $res");
