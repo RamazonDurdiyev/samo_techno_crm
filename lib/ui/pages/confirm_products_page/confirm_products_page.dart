@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart'hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_event.dart';
@@ -11,7 +12,7 @@ class ConfirmProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = ConfirmProductsBloc();
+    final bloc = ConfirmProductsBloc(repo: GetIt.instance.get());
     bloc.add(FetchUnconfirmedsEvent());
     return Scaffold(
       appBar: _buildAppBar(context),

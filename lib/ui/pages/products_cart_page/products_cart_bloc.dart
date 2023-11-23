@@ -11,7 +11,8 @@ import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_state.
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
-  ProductsCartBloc() : super(Initial()) {
+  final ProductRepo repo;
+  ProductsCartBloc({required this.repo}) : super(Initial()) {
     on<TryToExpandEvent>((event, emit) async {
       await _tryToExpand(emit, event.index);
     });
@@ -45,7 +46,6 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
 
   // Data
 
-  ProductRepo repo = ProductRepo();
   bool isRemove = false;
   List isItemExpanded = List.filled(20, false);
   List<String> localProducts = [];

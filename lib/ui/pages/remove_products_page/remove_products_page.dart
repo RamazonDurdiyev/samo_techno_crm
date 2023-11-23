@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_page.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_product_models_page/remove_product_models_page.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_bloc.dart';
@@ -11,7 +12,7 @@ class RemoveProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = RemoveProductBloc();
+    final bloc = RemoveProductBloc(repo: GetIt.instance.get());
     bloc.add(FetchCategoriesEvent());
     return Scaffold(
       appBar: _buildAppBar(context, bloc),

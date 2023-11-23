@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:samo_techno_crm/models/login_data/login_data.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_page.dart';
 import 'package:samo_techno_crm/ui/pages/sign_in_page/sign_in_page.dart';
 import 'package:samo_techno_crm/ui/pages/splash_page/splash_event.dart';
@@ -24,7 +27,8 @@ class SplashPage extends StatelessWidget {
       bloc: bloc,
       listenWhen: (previous, current) => current is CheckUserState,
       listener: (context, state) {
-        if (bloc.user.isNotEmpty == true) {
+        if (bloc.user.isNotEmpty == true &&
+            LoginData.fromJson(json.decode(bloc.user)).id != null) {
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
             builder: (context) {
               return const HomePage();

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_state.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_models/add_product_models_page.dart';
@@ -12,7 +13,7 @@ class AddProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = AddProductBloc();
+    final bloc = AddProductBloc(repo: GetIt.instance.get());
     bloc.add(AddFetchCategoriesEvent());
     return Scaffold(
       appBar: _buildAppBar(context, bloc),

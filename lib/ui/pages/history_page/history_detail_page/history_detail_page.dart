@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_event.dart';
 
@@ -7,7 +8,7 @@ class HistoryDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = HistoryBloc();
+    final bloc = HistoryBloc(repo: GetIt.instance.get());
     final args = ModalRoute.of(context)?.settings.arguments as Map;
     bloc.add(
       FetchHistoriesByIdEvent(

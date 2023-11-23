@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_event.dart';
@@ -12,7 +13,7 @@ class AddProductModelsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-    final bloc = AddProductBloc();
+    final bloc = AddProductBloc(repo: GetIt.instance.get());
     bloc.add(
       FetchCategoryByIdEvent(
         id: args["id"],

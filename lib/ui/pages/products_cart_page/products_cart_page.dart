@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart' hide State;
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_state.dart';
 
@@ -12,7 +13,7 @@ class CartPage extends StatelessWidget {
   const CartPage({super.key});
   @override
   Widget build(BuildContext context) {
-    final bloc = ProductsCartBloc();
+    final bloc = ProductsCartBloc(repo: GetIt.instance.get());
     bloc.add(GetLocalProductsEvent());
     return Scaffold(
       appBar: _buildAppBar(context, bloc),

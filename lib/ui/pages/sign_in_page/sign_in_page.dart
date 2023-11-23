@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_page.dart';
 import 'package:samo_techno_crm/ui/pages/sign_in_page/sign_in_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/sign_in_page/sign_in_event.dart';
@@ -11,7 +12,7 @@ class SignInPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = SignInBloc();
+    final bloc = SignInBloc(repo: GetIt.instance.get());
     GlobalKey<FormState> phoneKey = GlobalKey();
     GlobalKey<FormState> passwordKey = GlobalKey();
     return Scaffold(
@@ -77,7 +78,7 @@ class SignInPage extends StatelessWidget {
               return const HomePage();
             },
           ), (route) => false);
-          bloc.add(SaveUserEvent());
+          // bloc.add(SaveUserEvent());
         } else if (isError == true) {
           Fluttertoast.showToast(
             msg: "Something went wrong!",
@@ -87,31 +88,43 @@ class SignInPage extends StatelessWidget {
           );
         }
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: ElevatedButton(
-          onPressed: () {
-            if (phoneKey.currentState!.validate() &&
-                passwordKey.currentState!.validate()) {
-              bloc.add(LoginEvent());
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(16),
+      child: BlocBuilder<SignInBloc, SignInState>(
+        bloc: bloc,
+        builder: (context, state) {
+          final isLoading = state is LoginState && state.state == State.loading;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: ElevatedButton(
+              onPressed: () {
+                if (phoneKey.currentState!.validate() &&
+                    passwordKey.currentState!.validate()) {
+                  bloc.add(LoginEvent());
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(16),
+                  ),
+                ),
+                backgroundColor: Colors.indigo,
+                fixedSize: const Size(
+                  double.maxFinite,
+                  60,
+                ),
               ),
+              child: isLoading
+                  ? const CircularProgressIndicator.adaptive(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      "Sign In",
+                    ),
             ),
-            backgroundColor: Colors.indigo,
-            fixedSize: const Size(
-              double.maxFinite,
-              60,
-            ),
-          ),
-          child: const Text(
-            "Sign In",
-          ),
-        ),
+          );
+        },
       ),
     );
   }

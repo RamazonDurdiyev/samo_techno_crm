@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_detail_page/history_detail_page.dart';
@@ -11,7 +12,7 @@ class HistoryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = HistoryBloc();
+    final bloc = HistoryBloc(repo: GetIt.instance.get());
     bloc.add(FetchHistoriesEvent());
     return Scaffold(
       appBar: _buildAppBar(context),

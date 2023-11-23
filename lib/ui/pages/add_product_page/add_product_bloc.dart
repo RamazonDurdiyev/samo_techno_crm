@@ -6,14 +6,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:samo_techno_crm/models/category_model/category_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
-import 'package:samo_techno_crm/repo/category_repo/category_repo.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_event.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
-  AddProductBloc() : super(Initial()) {
+ final ProductRepo repo;
+  AddProductBloc({required this.repo}) : super(Initial()) {
     on<ChangeTabEvent>((event, emit) async {
       await _changeTab(emit, event.value);
     });
@@ -38,8 +38,6 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
   TextEditingController countCtrl = TextEditingController();
 
   // Data
-  CategoryRepo repo = CategoryRepo();
-  ProductRepo productRepo = ProductRepo();
   List<CategoryModel> categoriesList = [];
   List<String> localProducts = [];
   List<ProductModel> productsById = [];
@@ -120,7 +118,7 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
   _fetchCategoryById(Emitter<AddProductState> emit, int id) async {
     try {
       emit(FetchCategoryByIdState(state: State.loading));
-      productsById = await productRepo.fetchProductById(id);
+      productsById = await repo.fetchProductById(id);
       if (kDebugMode) {
         print(
             "AddProductBloc _fetchCategoryById categoryById products => $productsById");

@@ -2,12 +2,19 @@
 
 const String BASE_URL = "https://908f-195-158-20-242.ngrok-free.app/";
 
+
+///////// Time outs ///////////
+
+const int CONNECT_TIME_OUT = 30000;
+const int SEND_TIME_OUT = 30000;
+const int RECEIVE_TIME_OUT = 30000;
+
 ///////// Categories API /////////
 const String GET_ALL_CATEGORIES_API =
     "${BASE_URL}v1/categories/all";
 ///////// Products API ///////////
 const String GET_PRODUCT_BY_ID =
-    "${BASE_URL}product-api/v1/product-group/get/products/by-type-id?typeId=";
+    "${BASE_URL}v1/products/";
 const String REMOVE_GET_PRODUCT_BY_ID =
     "${BASE_URL}product-api/v1/in-products/get-all/present/products?typeId=";
 const String POST_PRODUCT_API = "${BASE_URL}product-api/v1/in-products/add";

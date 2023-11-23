@@ -6,7 +6,8 @@ import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_state.dart';
 
 class ConfirmProductsBloc extends Bloc<ConfirmProductsEvent,ConfirmProductsState>{
-  ConfirmProductsBloc():super(Initial()){
+  final ProductRepo repo;
+  ConfirmProductsBloc({required this.repo}):super(Initial()){
     on<FetchUnconfirmedsEvent>((event, emit)async{
       await _fetchUnconfirmeds(emit);
     });
@@ -14,7 +15,6 @@ class ConfirmProductsBloc extends Bloc<ConfirmProductsEvent,ConfirmProductsState
 
   // Data
 
-  ProductRepo repo = ProductRepo();
   List<UnconfirmedProductsModel> unconfirmeds = [];
   
   _fetchUnconfirmeds(Emitter<ConfirmProductsState> emit) async{

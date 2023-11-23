@@ -11,7 +11,8 @@ import 'sign_in_event.dart';
 import 'sign_in_state.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
-  SignInBloc() : super(Initial()) {
+  final LoginRepo repo;
+  SignInBloc({required this.repo}) : super(Initial()) {
     on((event, emit) async {
       await _login(emit);
     });
@@ -30,7 +31,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   GlobalKey<FormState> passwordKey = GlobalKey();
   bool isUserAvailable = false;
   LoginData user = LoginData();
-  LoginRepo repo = LoginRepo();
+  
 
   _login(Emitter<SignInState> emit) async {
     try {
