@@ -25,12 +25,12 @@ class CategoryModel {
 @JsonSerializable()
 class CategoryItemModel {
   final int? id;
-  final String? name;
+  final String? title;
   final String? imageUrl;
 
   CategoryItemModel({
     this.id,
-    this.name,
+    this.title,
     this.imageUrl,
   });
 

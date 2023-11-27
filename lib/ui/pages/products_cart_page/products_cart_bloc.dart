@@ -35,7 +35,7 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
         await _deleteProduct(emit, event.productDelete);
       },
     );
-    on((event, emit) async {
+    on<DeleteAllLocalProductsEvent>((event, emit) async {
       await _deleteAllLocalProducts(emit);
     });
   }

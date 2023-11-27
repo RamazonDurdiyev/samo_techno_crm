@@ -12,9 +12,6 @@ class ProductRepo {
   final Dio client;
 
   ProductRepo({required this.networkInfo, required this.client});
-   
-  
-
 
   Future<List<CategoryModel>> fetchCategories() async {
     if (await networkInfo.isConnected) {
@@ -34,91 +31,79 @@ class ProductRepo {
     }
   }
 
-  Future<List<HistoryModel>> fetchHistories() async {
-    // if (await networkInfo.isConnected) {
-      final res = await client.get(
-        FETCH_HISTORIES_API,
-        options: Options(
-          headers: {"Access-Control-Allow-Origin": ":*"},
-        ),
-      );
+  Future<HistoryModel> fetchHistories(String placeStatus, int page) async {
+    if (await networkInfo.isConnected) {
+      final res = await client.post(FETCH_HISTORIES_API,
+          options: Options(
+            headers: {"Access-Control-Allow-Origin": ":*"},
+          ),
+          data: {"placeStatus": placeStatus, "page": page, "size": 10});
       if (kDebugMode) {
         print("fetchHistories data => $res");
       }
-      return res.data["data"].map<HistoryModel>(
-        (history) {
-          return HistoryModel.fromJson(history);
-        },
-      ).toList();
-    // } else {
-    //   throw NetworkException();
-    // }
+      if (kDebugMode) {
+        print("HHHHH func called");
+      }
+
+      return HistoryModel.fromJson(res.data["data"]);
+    } else {
+      throw NetworkException();
+    }
   }
 
 ///////////////////////////////////////////////////////////
 //// ************** Fetch history By Id ************* ////
 ///////////////////////////////////////////////////////////
 
-Future<List<HistoryDetailModel>> fetchHistoryProductById(int id) async {
-    // if (await networkInfo.isConnected) {
-    final res = await client.get(
-      "$FETCH_HISTORY_BY_ID$id",
-      options: Options(
-        
-        headers: {"Access-Control-Allow-Origin": ":*"},
-      ),
-    );
-    if (kDebugMode) {
-      print("fetchHistoriesById data => $res");
+  Future<HistoryDetailModel> fetchHistoryProductById(
+      int id, String placeStatus) async {
+    if (await networkInfo.isConnected) {
+      final res = await client.get(FETCH_HISTORY_BY_ID,
+          data: {"id": id, "placeStatus": placeStatus});
+      if (kDebugMode) {
+        print("fetchHistoriesById data => $res");
+      }
+      return HistoryDetailModel.fromJson(res.data["data"]);
+    } else {
+      throw NetworkException();
     }
-    return res.data["data"].map<HistoryDetailProductModel>(
-      (product) {
-        return HistoryDetailProductModel.fromJson(product);
-      },
-    ).toList();
-    // } else {
-    //   throw NetworkException();
-    // }
   }
-
 
   Future<bool> postProducts(List<PostProductModel> newProduct) async {
     if (await networkInfo.isConnected) {
-    await client.post(
-      queryParameters: {"tradePlaceId": 1, "comment": "nima"},
-      POST_PRODUCT_API,
-      data: newProduct.map((product) => product.toJson()).toList(),
-    );
-    return true;
+      await client.post(
+        queryParameters: {"tradePlaceId": 1, "comment": "nima"},
+        POST_PRODUCT_API,
+        data: newProduct.map((product) => product.toJson()).toList(),
+      );
+      return true;
     } else {
-    throw NetworkException();
+      throw NetworkException();
     }
   }
-
 
 ///////////////////////////////////////////////////////////
 //// ************** Delete product By Id ************* ////
 ///////////////////////////////////////////////////////////
 
-    Future<bool> deleteProducts(List<DeleteProductModel> productDelete) async {
+  Future<bool> deleteProducts(List<DeleteProductModel> productDelete) async {
     if (await networkInfo.isConnected) {
-    await client.post(
-      queryParameters: {"tradePlaceId": 2, "comment": "nima"},
-      DELETE_PRODUCTS_API,
-      data: productDelete.map((product) => product.toJson()).toList(),
-    );
-    return true;
+      await client.post(
+        queryParameters: {"tradePlaceId": 2, "comment": "nima"},
+        DELETE_PRODUCTS_API,
+        data: productDelete.map((product) => product.toJson()).toList(),
+      );
+      return true;
     } else {
-    throw NetworkException();
+      throw NetworkException();
     }
   }
 
-  
 ///////////////////////////////////////////////////////////
 //// ************** Fetch product By Id ************* /////
 ///////////////////////////////////////////////////////////
 
-Future <List<ProductModel>> fetchProductById(int id) async {
+  Future<List<ProductModel>> fetchProductById(int id) async {
     if (await networkInfo.isConnected) {
       final res = await client.get(
         "$GET_PRODUCT_BY_ID$id/all",
@@ -143,7 +128,7 @@ Future <List<ProductModel>> fetchProductById(int id) async {
 //// ******* Fetch product By Id Remove Page ********* ////
 ///////////////////////////////////////////////////////////
 
-Future <List<RProductModel>> rFetchProductById(int id) async {
+  Future<List<RProductModel>> rFetchProductById(int id) async {
     if (await networkInfo.isConnected) {
       final res = await client.get(
         "$REMOVE_GET_PRODUCT_BY_ID$id",
@@ -157,7 +142,6 @@ Future <List<RProductModel>> rFetchProductById(int id) async {
       return res.data["data"].map<RProductModel>(
         (product) {
           return RProductModel.fromJson(product);
-          
         },
       ).toList();
     } else {
@@ -165,12 +149,11 @@ Future <List<RProductModel>> rFetchProductById(int id) async {
     }
   }
 
-
 ///////////////////////////////////////////////////////////
 //// *************** Fetch unconfirmeds ************** ////
 ///////////////////////////////////////////////////////////
 
-    Future<List<UnconfirmedProductsModel>> fetchUnconfirmeds() async {
+  Future<List<UnconfirmedProductsModel>> fetchUnconfirmeds() async {
     if (await networkInfo.isConnected) {
       final res = await client.get(
         GET_UNCONFIRMED_PRODUCTS_API,

@@ -215,11 +215,12 @@ class RemoveProductsPage extends StatelessWidget {
               },
               settings: RouteSettings(
                 arguments: {
-                  "id": bloc.categoriesList[index].id,
+                  "id": bloc.categoriesList[bloc.currentIndexOfTab]
+                      .categoryItems?[index].id,
                   "category_item_name": bloc
                       .categoriesList[bloc.currentIndexOfTab]
                       .categoryItems?[index]
-                      .name,
+                      .title,
                 },
               ),
             ),
@@ -252,7 +253,7 @@ class RemoveProductsPage extends StatelessWidget {
                   isloading
                       ? ""
                       : bloc.categoriesList[bloc.currentIndexOfTab]
-                              .categoryItems?[index].name
+                              .categoryItems?[index].title
                               .toString() ??
                           "",
                   style: const TextStyle(

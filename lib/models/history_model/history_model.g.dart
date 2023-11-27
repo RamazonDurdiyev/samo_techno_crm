@@ -7,20 +7,46 @@ part of 'history_model.dart';
 // **************************************************************************
 
 HistoryModel _$HistoryModelFromJson(Map<String, dynamic> json) => HistoryModel(
-      transactionId: json['transactionId'] as int?,
-      status: json['status'] as int?,
-      tradePlaceName: json['tradePlaceName'] as String?,
-      date: json['date'] as String?,
-      userId: json['userId'] as int?,
+      page: json['page'] as int?,
+      size: json['size'] as int?,
+      totalPage: json['totalPage'] as int?,
+      data: (json['data'] as List<dynamic>?)
+          ?.map((e) => HistoryItemModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$HistoryModelToJson(HistoryModel instance) =>
     <String, dynamic>{
-      'transactionId': instance.transactionId,
+      'page': instance.page,
+      'size': instance.size,
+      'totalPage': instance.totalPage,
+      'data': instance.data,
+    };
+
+HistoryItemModel _$HistoryItemModelFromJson(Map<String, dynamic> json) =>
+    HistoryItemModel(
+      id: json['id'] as int?,
+      placeStatus: json['placeStatus'] as String?,
+      status: json['status'] as String?,
+      createdDate: json['createdDate'] as String?,
+      productName: json['productName'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      quantity: json['quantity'] as int?,
+      price: (json['price'] as num?)?.toDouble(),
+      address: json['address'] as String?,
+    );
+
+Map<String, dynamic> _$HistoryItemModelToJson(HistoryItemModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'placeStatus': instance.placeStatus,
       'status': instance.status,
-      'tradePlaceName': instance.tradePlaceName,
-      'date': instance.date,
-      'userId': instance.userId,
+      'createdDate': instance.createdDate,
+      'productName': instance.productName,
+      'imageUrl': instance.imageUrl,
+      'quantity': instance.quantity,
+      'price': instance.price,
+      'address': instance.address,
     };
 
 HistoryDetailModel _$HistoryDetailModelFromJson(Map<String, dynamic> json) =>

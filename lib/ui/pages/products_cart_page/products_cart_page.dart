@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_state.dart';
-
 import 'products_cart_bloc.dart';
 import 'products_cart_event.dart';
 
@@ -192,7 +191,7 @@ class CartPage extends StatelessWidget {
                     actions: [
                       CupertinoDialogAction(
                         onPressed: () {
-                          // bloc.add(DeleteAllLocalProductsEvent());
+                          bloc.add(DeleteAllLocalProductsEvent());
                           Navigator.pop(context);
                         },
                         child: const Text(

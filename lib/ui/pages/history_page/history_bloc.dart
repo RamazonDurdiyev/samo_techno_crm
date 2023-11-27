@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart' hide State;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:samo_techno_crm/models/history_model/history_model.dart';
@@ -14,17 +15,34 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     on<FetchHistoriesByIdEvent>((event, emit) async {
       await _fetchHistoriesById(emit, event.id);
     });
+    on<FilterChangeIsSellEvent>((event, emit) async {
+      await _changeIsSell(emit);
+    });
+    on<FetchMoreEvent>((event, emit) async {
+      await _fetchMore(emit);
+    });
   }
+
+  // Controllers
+
+  ScrollController scrlController = ScrollController();
 
   // Data
 
-  List<HistoryModel> histories = [];
-  List<HistoryDetailModel> productsById = [];
+  HistoryModel histories = HistoryModel();
+  List<HistoryItemModel> historyItems = [];
+  HistoryDetailModel historyDetail = HistoryDetailModel();
+  List<HistoryDetailModel> historyDetailProducts = [];
+  bool isSell = false;
+  int page = 1;
+  String date = "";
 
   _fetchHistories(Emitter<HistoryState> emit) async {
     try {
       emit(FetchHistoriesState(state: State.loading));
-      histories = await repo.fetchHistories();
+      histories = await repo.fetchHistories(isSell ? "SELL" : "BUY", page);
+      historyItems = histories.data ?? [];
+      print("${historyItems.length} length");
       if (kDebugMode) {
         print("HistoryBloc _fetchHistories histories => $histories");
       }
@@ -40,10 +58,12 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   _fetchHistoriesById(Emitter<HistoryState> emit, int id) async {
     try {
       emit(FetchHistoriesByIdState(state: State.loading));
-      productsById = await repo.fetchHistoryProductById(id);
+      historyDetail =
+          await repo.fetchHistoryProductById(id, isSell ? "SELL" : "BUY");
+      // historyDetailProducts = historyDetail.products;
       if (kDebugMode) {
         print(
-            "HistoryBloc _fetchHistoriesyById categoryById products => $productsById");
+            "HistoryBloc _fetchHistoriesyById categoryById products => $historyDetail");
       }
       emit(FetchHistoriesByIdState(state: State.loaded));
     } catch (e) {
@@ -51,6 +71,33 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
       if (kDebugMode) {
         print("HistoryBloc _fetchHistoriesById error => $e");
       }
+    }
+  }
+
+  _changeIsSell(Emitter<HistoryState> emit) {
+    try {
+      emit(FilterChangeIsSellState(state: State.loading));
+      isSell = !isSell;
+      historyItems = [];
+      emit(FilterChangeIsSellState(state: State.loaded));
+    } catch (e) {
+      emit(FilterChangeIsSellState(state: State.error));
+    }
+  }
+
+  _fetchMore(Emitter<HistoryState> emit) async {
+    try {
+      emit(FetchMoreState(state: State.loading));
+      print("calledd");
+      page++;
+      print("${historyItems.length} lengthMore");
+      await repo.fetchHistories(isSell ? "SELL" : "BUY", page).then((value) {
+        historyItems.addAll(value.data ?? []);
+      });
+      print("${historyItems.length} lengthMore");
+        emit(FetchMoreState(state: State.loaded));
+    } catch (e) {
+      emit(FetchMoreState(state: State.error));
     }
   }
 }

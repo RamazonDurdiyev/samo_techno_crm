@@ -14,11 +14,11 @@ class RemoveProductModelsPage extends StatelessWidget {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final bloc = RemoveProductBloc(repo: GetIt.instance.get());
-    bloc.add(
-      FetchCategoryByIdEvent(
-        id: args["id"],
-      ),
-    );
+    // bloc.add(
+    //   FetchCategoryByIdEvent(
+    //     id: args["id"],
+    //   ),
+    // );
 
     return Scaffold(
       appBar: _buildAppBar(context, bloc, args),

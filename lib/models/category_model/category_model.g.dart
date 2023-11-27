@@ -27,13 +27,13 @@ Map<String, dynamic> _$CategoryModelToJson(CategoryModel instance) =>
 CategoryItemModel _$CategoryItemModelFromJson(Map<String, dynamic> json) =>
     CategoryItemModel(
       id: json['id'] as int?,
-      name: json['name'] as String?,
+      title: json['title'] as String?,
       imageUrl: json['imageUrl'] as String?,
     );
 
 Map<String, dynamic> _$CategoryItemModelToJson(CategoryItemModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'name': instance.name,
+      'title': instance.title,
       'imageUrl': instance.imageUrl,
     };

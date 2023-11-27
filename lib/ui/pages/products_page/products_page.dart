@@ -222,7 +222,7 @@ class ProductsPage extends StatelessWidget {
                   "category_item_name": bloc
                       .categoriesList[bloc.currentIndexOfTab]
                       .categoryItems?[index]
-                      .name,
+                      .title,
                 },
               ),
             ),
@@ -255,7 +255,7 @@ class ProductsPage extends StatelessWidget {
                   isloading
                       ? ""
                       : bloc.categoriesList[bloc.currentIndexOfTab]
-                              .categoryItems?[index].name
+                              .categoryItems?[index].title
                               .toString() ??
                           "",
                   style: const TextStyle(

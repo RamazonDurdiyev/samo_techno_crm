@@ -24,4 +24,20 @@ class FetchHistoriesByIdState extends HistoryState {
   List<Object?> get props => [state];
 }
 
+class FilterChangeIsSellState extends HistoryState {
+  final State state;
+
+  FilterChangeIsSellState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
+class FetchMoreState extends HistoryState {
+  final State state;
+
+  FetchMoreState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
 enum State { initial, loading, loaded, error }

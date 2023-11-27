@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart' hide State;
+import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
@@ -16,7 +17,45 @@ class HistoryPage extends StatelessWidget {
     bloc.add(FetchHistoriesEvent());
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildBody(bloc),
+      body: _buildBody(context, bloc),
+    );
+  }
+
+  _buildFilterBySell(HistoryBloc bloc) {
+    return BlocBuilder<HistoryBloc, HistoryState>(
+      bloc: bloc,
+      builder: (context, state) {
+        final isLoading =
+            state is FetchHistoriesState && state.state == State.loading;
+        return isLoading
+            ? const CupertinoActivityIndicator()
+            : GestureDetector(
+                onTap: () {
+                  bloc.add(FilterChangeIsSellEvent());
+                  bloc.add(FetchHistoriesEvent());
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(
+                        100,
+                      ),
+                    ),
+                    color: bloc.isSell ? Colors.red : Colors.green,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      bloc.isSell ? "Sell" : "Buy",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+      },
     );
   }
 
@@ -54,15 +93,81 @@ class HistoryPage extends StatelessWidget {
     );
   }
 
-  _buildBody(HistoryBloc bloc) {
+  _buildBody(BuildContext context, HistoryBloc bloc) {
     return SingleChildScrollView(
+      controller: bloc.scrlController,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
+          const SizedBox(
+            height: 8,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              _buildFilterBySell(bloc),
+              _buildDateFilterButton(context),
+            ],
+          ),
           const SizedBox(
             height: 8,
           ),
           _buildListView(bloc),
         ],
+      ),
+    );
+  }
+
+  _buildDateFilterButton(BuildContext context) {
+    DateTime selectedDate = DateTime.now();
+    return InkWell(
+      borderRadius: const BorderRadius.all(
+        Radius.circular(100),
+      ),
+      onTap: () {
+        showModalBottomSheet(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(
+                32,
+              ),
+              topRight: Radius.circular(
+                32,
+              ),
+            ),
+          ),
+          context: context,
+          builder: (BuildContext builder) {
+            return SizedBox(
+              height: MediaQuery.of(context).copyWith().size.height / 3,
+              child: CupertinoDatePicker(
+                initialDateTime: DateTime.now(),
+                maximumDate: DateTime.now(),
+                mode: CupertinoDatePickerMode.date,
+                onDateTimeChanged: (value) {
+                  selectedDate = value;
+                  print(
+                    selectedDate.toString().substring(
+                          0,
+                          selectedDate.toString().indexOf(" "),
+                        ),
+                  );
+                },
+              ),
+            );
+          },
+        ).then(
+          (value) {},
+        );
+      },
+      child: const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Text(
+          "Add date",
+          style: TextStyle(
+            color: Colors.indigo,
+          ),
+        ),
       ),
     );
   }
@@ -75,19 +180,32 @@ class HistoryPage extends StatelessWidget {
   }
 
   _buildListView(HistoryBloc bloc) {
-    return BlocBuilder<HistoryBloc, HistoryState>(
-        bloc: bloc,
-        builder: (context, state) {
-          return ListView.builder(
-            padding: const EdgeInsets.all(0),
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: bloc.histories.length,
-            itemBuilder: (context, index) {
-              return _buildListItem(context, bloc, index);
+    return BlocConsumer<HistoryBloc, HistoryState>(
+      bloc: bloc,
+      listener: (context, state) {
+          bloc.scrlController.addListener(
+            () {
+              if (bloc.scrlController.position.pixels ==
+                  bloc.scrlController.position.maxScrollExtent) {
+                bloc.add(FetchMoreEvent());
+              }
             },
           );
-        });
+      },
+      builder: (context, state) {
+        final isLoading =
+            state is FetchHistoriesState && state.state == State.loading;
+        return ListView.builder(
+          padding: const EdgeInsets.all(0),
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: isLoading ? 0 : bloc.historyItems.length,
+          itemBuilder: (context, index) {
+            return _buildListItem(context, bloc, index);
+          },
+        );
+      },
+    );
   }
 
   _buildListItem(BuildContext context, HistoryBloc bloc, int index) {
@@ -109,11 +227,15 @@ class HistoryPage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) {
-                    return const HistoryDetailPage();
+                builder: (context) {
+                  return const HistoryDetailPage();
+                },
+                settings: RouteSettings(
+                  arguments: {
+                    "id": bloc.historyItems[index].id,
                   },
-                  settings: RouteSettings(
-                      arguments: {"id": bloc.histories[index].transactionId})),
+                ),
+              ),
             );
           },
           child: Container(
@@ -158,12 +280,13 @@ class HistoryPage extends StatelessWidget {
                         child: SizedBox(),
                       ),
                       Icon(
-                        bloc.histories[index].status == 10
+                        bloc.historyItems[index].status == "NOT_CONFIRMED"
                             ? Icons.error
                             : Icons.check_circle,
-                        color: bloc.histories[index].status == 10
-                            ? Colors.red
-                            : Colors.green,
+                        color:
+                            bloc.historyItems[index].status == "NOT_CONFIRMED"
+                                ? Colors.red
+                                : Colors.green,
                       ),
                     ],
                   ),
@@ -193,7 +316,7 @@ class HistoryPage extends StatelessWidget {
                           scrollAxis: Axis.horizontal,
                           fadingEdgeEndFraction: 0.2,
                           fadingEdgeStartFraction: 0.2,
-                          text: "${bloc.histories[index].tradePlaceName}"
+                          text: "${bloc.historyItems[index].address}"
                               "         ",
                         ),
                       ),
@@ -211,7 +334,7 @@ class HistoryPage extends StatelessWidget {
                         child: SizedBox(),
                       ),
                       Text(
-                        bloc.histories[index].date.toString(),
+                        bloc.historyItems[index].createdDate ?? "",
                         style: const TextStyle(
                           fontSize: 16,
                         ),
@@ -231,9 +354,10 @@ class HistoryPage extends StatelessWidget {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: bloc.histories[index].status == 10
-                              ? const Color.fromARGB(255, 251, 18, 2)
-                              : Colors.green,
+                          color:
+                              bloc.historyItems[index].status == "NOT_CONFIRMED"
+                                  ? const Color.fromARGB(255, 251, 18, 2)
+                                  : Colors.green,
                           borderRadius: const BorderRadius.all(
                             Radius.circular(100),
                           ),
@@ -241,7 +365,7 @@ class HistoryPage extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            bloc.histories[index].status == 10
+                            bloc.historyItems[index].status == "NOT_CONFIRMED"
                                 ? "Tasdiqlanmadi"
                                 : "Tasdiqlandi",
                             style: const TextStyle(color: Colors.white),

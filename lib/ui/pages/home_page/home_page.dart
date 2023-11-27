@@ -402,24 +402,6 @@ class HomePage extends StatelessWidget {
         crossAxisCount: 3,
       ),
       children: [
-        // _serviceButton(
-        //   context,
-        //   const Icon(
-        //     Icons.add,
-        //     color: Colors.white,
-        //   ),
-        //   "Omborga mahsulot kiritish",
-        //   const SearchAddressPage(),
-        // ),
-        // _serviceButton(
-        //   context,
-        //   const Icon(
-        //     Icons.remove,
-        //     color: Colors.white,
-        //   ),
-        //   "ombordagi mahsulotni chiqarish",
-        //   const RemoveProductPage(),
-        // ),
         _serviceButton(
           context,
           const Icon(
