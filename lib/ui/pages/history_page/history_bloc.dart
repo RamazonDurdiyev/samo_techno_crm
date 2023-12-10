@@ -32,17 +32,17 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   HistoryModel histories = HistoryModel();
   List<HistoryItemModel> historyItems = [];
   HistoryDetailModel historyDetail = HistoryDetailModel();
-  List<HistoryDetailModel> historyDetailProducts = [];
+  List<HistoryDetailProductModel> historyDetailProducts = [];
   bool isSell = false;
-  int page = 1;
+  int page = 0;
   String date = "";
 
   _fetchHistories(Emitter<HistoryState> emit) async {
     try {
       emit(FetchHistoriesState(state: State.loading));
-      histories = await repo.fetchHistories(isSell ? "SELL" : "BUY", page);
+      histories =
+          await repo.fetchHistories(isSell ? "SELL" : "BUY", page,);
       historyItems = histories.data ?? [];
-      print("${historyItems.length} length");
       if (kDebugMode) {
         print("HistoryBloc _fetchHistories histories => $histories");
       }
@@ -58,9 +58,11 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   _fetchHistoriesById(Emitter<HistoryState> emit, int id) async {
     try {
       emit(FetchHistoriesByIdState(state: State.loading));
-      historyDetail =
-          await repo.fetchHistoryProductById(id, isSell ? "SELL" : "BUY");
-      // historyDetailProducts = historyDetail.products;
+      historyDetail = await repo.fetchHistoryProductById(
+        id,
+        isSell ? "SELL" : "BUY",
+      );
+      historyDetailProducts = historyDetail.products ?? [];
       if (kDebugMode) {
         print(
             "HistoryBloc _fetchHistoriesyById categoryById products => $historyDetail");
@@ -85,17 +87,18 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     }
   }
 
-  _fetchMore(Emitter<HistoryState> emit) async {
+  _fetchMore(Emitter<HistoryState> emit,) async {
     try {
       emit(FetchMoreState(state: State.loading));
-      print("calledd");
       page++;
-      print("${historyItems.length} lengthMore");
-      await repo.fetchHistories(isSell ? "SELL" : "BUY", page).then((value) {
+      await repo
+          .fetchHistories(isSell ? "SELL" : "BUY", page,)
+          .then((value) {
         historyItems.addAll(value.data ?? []);
+        scrlController.removeListener(() {});
       });
-      print("${historyItems.length} lengthMore");
-        emit(FetchMoreState(state: State.loaded));
+
+      emit(FetchMoreState(state: State.loaded));
     } catch (e) {
       emit(FetchMoreState(state: State.error));
     }

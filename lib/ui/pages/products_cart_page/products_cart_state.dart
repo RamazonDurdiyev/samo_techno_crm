@@ -56,5 +56,13 @@ class PostProductState extends ProductsCartState {
   List<Object?> get props => [state];
 }
 
+class DeleteProductState extends ProductsCartState{
+  final State state;
+
+  DeleteProductState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
 
 enum State {initial,loading,loaded,error}

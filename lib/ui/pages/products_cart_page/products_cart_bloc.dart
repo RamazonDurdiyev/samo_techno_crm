@@ -4,7 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
+import 'package:samo_techno_crm/models/place_model/place_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_event.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_state.dart';
@@ -46,11 +49,13 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
 
   // Data
 
-  bool isRemove = false;
+  bool isSell = false;
   List isItemExpanded = List.filled(20, false);
   List<String> localProducts = [];
   List categoryNames = [];
   List<String> sortProducts = [];
+  String selectedPlace = "";
+  String contractId = "";
 
   _tryToExpand(Emitter<ProductsCartState> emit, int index) {
     try {
@@ -72,7 +77,9 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
       emit(GetLocalProductsState(state: State.loading));
       final prefs = await SharedPreferences.getInstance();
       localProducts = prefs.getStringList("cart_products") ?? [];
-      isRemove = prefs.getBool("is_remove") ?? false;
+      selectedPlace = prefs.getString("place") ?? "";
+      isSell = prefs.getBool("is_remove") ?? false;
+      contractId = prefs.getString("contract_id") ?? "";
       for (var i = 0; i < localProducts.length; i++) {
         if (!categoryNames.contains(
             CartProductModel.fromJson(json.decode(localProducts[i]))
@@ -114,12 +121,16 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
         }
       }
       prefs.setStringList("cart_products", localProducts);
+      if (localProducts.isEmpty) {
+        prefs.remove("is_remove");
+        prefs.remove("place");
+      }
       if (kDebugMode) {
         print(
             "ProductsCartBloc _deleteLocalProducts product deleted succesfully");
       }
       Fluttertoast.showToast(
-        msg: "Succesfully deleted",
+        msg: "O`chirildi",
         backgroundColor: Colors.indigo,
         textColor: Colors.white,
       );
@@ -154,7 +165,11 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
       Emitter<ProductsCartState> emit, List<PostProductModel> products) async {
     try {
       emit(PostProductState(state: State.loading));
-      repo.postProducts(products);
+      repo
+          .postProducts(
+              products, PlaceModel.fromJson(json.decode(selectedPlace)).id!);
+          
+
       if (kDebugMode) {
         print("ProductsCartBloc _postProducts posted succesfully");
       }
@@ -170,14 +185,21 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
   _deleteProduct(Emitter<ProductsCartState> emit,
       List<DeleteProductModel> products) async {
     try {
-      emit(PostProductState(state: State.loading));
-      repo.deleteProducts(products);
+      emit(DeleteProductState(state: State.loading));
+      repo
+          .deleteProducts(
+              products,
+              PlaceModel.fromJson(json.decode(selectedPlace)).id!,
+              int.parse(contractId),);
+          
+           
+
       if (kDebugMode) {
         print("ProductsCartBloc _deleteProducts deleted succesfully");
       }
-      emit(PostProductState(state: State.loaded));
+      emit(DeleteProductState(state: State.loaded));
     } catch (e) {
-      emit(PostProductState(state: State.error));
+      emit(DeleteProductState(state: State.error));
       if (kDebugMode) {
         print("ProductsCartBloc _deleteProducts error => $e");
       }
@@ -190,18 +212,24 @@ class ProductsCartBloc extends Bloc<ProductsCartEvent, ProductsCartState> {
       final prefs = await SharedPreferences.getInstance();
       localProducts = [];
       sortProducts = [];
-      prefs.setBool("is_remove", false);
-      prefs.setStringList("cart_products", []);
+      prefs.remove("place");
+      prefs.remove("cart_products");
+      prefs.remove("is_remove");
+      prefs.remove("contract_id");
       if (kDebugMode) {
         print(
             "ProductsCartBloc _deleteAllLocalProducts all products deleted succesfully");
       }
+      Fluttertoast.showToast(
+        msg: "Barcha ma`lumot o`chirildi",
+        backgroundColor: Colors.indigo,
+        gravity: ToastGravity.BOTTOM,
+      );
       emit(DeleteAllLocalProductsState(state: State.loaded));
     } catch (e) {
       emit(DeleteAllLocalProductsState(state: State.error));
       if (kDebugMode) {
-        print(
-            "ProductsCartBloc _deleteAllLocalProducts error => $e");
+        print("ProductsCartBloc _deleteAllLocalProducts error => $e");
       }
     }
   }

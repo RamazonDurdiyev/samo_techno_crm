@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/unconfirmed_products/unconfirmed_products_model.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_event.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_state.dart';

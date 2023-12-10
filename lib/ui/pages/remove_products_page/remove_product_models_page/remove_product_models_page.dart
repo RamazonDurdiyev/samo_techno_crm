@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_event.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_state.dart';
@@ -14,11 +15,11 @@ class RemoveProductModelsPage extends StatelessWidget {
     final args =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     final bloc = RemoveProductBloc(repo: GetIt.instance.get());
-    // bloc.add(
-    //   FetchCategoryByIdEvent(
-    //     id: args["id"],
-    //   ),
-    // );
+    bloc.add(
+      FetchCategoryByIdEvent(
+        id: args["id"],
+      ),
+    );
 
     return Scaffold(
       appBar: _buildAppBar(context, bloc, args),
@@ -182,88 +183,170 @@ class RemoveProductModelsPage extends StatelessWidget {
     );
   }
 
-  _buildModelChild(BuildContext context, RemoveProductBloc bloc,
-      int parentIndex, int index, bool isLoading, Map<String, dynamic> args) {
+  _showDialog(
+      BuildContext context,
+      RemoveProductBloc bloc,
+      Map<String, dynamic> args,
+      int productIndex,
+      int modelIndex,
+      int priceIndex) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(
+                16,
+              ),
+            ),
+          ),
+          title: const Text(
+            "To`ldiring",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTextField(bloc.countCtrl, "Sonini kiriting"),
+              const SizedBox(
+                height: 8,
+              ),
+              bloc.contractId.isEmpty
+                  ? _buildTextField(bloc.contractCtrl, "Kontrakt raqami")
+                  : const SizedBox(),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "Cancel",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                if (bloc.productsById[productIndex].children?[modelIndex] !=
+                    null) {
+                  bloc.add(
+                    SaveLocalToCartEvent(
+                      product: CartProductModel(
+                        inProductId: bloc
+                            .productsById[productIndex]
+                            .children?[modelIndex]
+                            .prices?[priceIndex]
+                            .inproductId,
+                        name: bloc.productsById[productIndex]
+                            .children?[modelIndex].name,
+                        categoryName: args["category_item_name"],
+                        price: bloc.productsById[productIndex]
+                            .children?[modelIndex].prices?[priceIndex].price,
+                        quantity: bloc.countCtrl.text.isNotEmpty
+                            ? int.parse(
+                                bloc.countCtrl.text,
+                              )
+                            : 0,
+                        productId: bloc.productsById[productIndex]
+                            .children?[modelIndex].id,
+                      ),
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text(
+                "Add",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.indigo,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  _buildPrices(
+      BuildContext context,
+      Map<String, dynamic> args,
+      RemoveProductBloc bloc,
+      int productIndex,
+      int modelIndex,
+      int priceIndex) {
+    List<ProductPricesModel>? prices =
+        bloc.productsById[productIndex].children?[modelIndex].prices;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: InkWell(
+        onTap: () {
+          Navigator.pop(context);
+          _showDialog(
+              context, bloc, args, productIndex, modelIndex, priceIndex);
+        },
+        child: Row(
+          children: [
+            Text(
+              "Narxi: ${prices?[priceIndex].price}",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Expanded(child: SizedBox()),
+            Text(
+              "Soni: ${prices?[priceIndex].quantity}",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  _buildModelChild(
+      BuildContext context,
+      RemoveProductBloc bloc,
+      int productIndex,
+      int modelIndex,
+      bool isLoading,
+      Map<String, dynamic> args) {
     return InkWell(
       onTap: () {
-        showDialog(
+        showModalBottomSheet(
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topRight: Radius.circular(
+                32,
+              ),
+              topLeft: Radius.circular(
+                32,
+              ),
+            ),
+          ),
           context: context,
           builder: (context) {
-            return AlertDialog(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(
-                    16,
-                  ),
-                ),
-              ),
-              title: const Text(
-                "To`ldiring",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildTextField(bloc.countCtrl, "Sonini kiriting"),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  _buildTextField(bloc.contractCtrl, "Kontrakt raqami"),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    "Cancel",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    if (bloc.productsById[parentIndex].children?[index] !=
-                        null) {
-                      bloc.add(
-                        SaveLocalToCartEvent(
-                          product: CartProductModel(
-                            inProductId: bloc
-                                .productsById[parentIndex].children?[index].id,
-                            name: bloc.productsById[parentIndex]
-                                .children?[index].name,
-                            categoryName: args["category_item_name"],
-                            price: bloc.contractCtrl.text.isNotEmpty
-                                ? int.parse(
-                                    bloc.contractCtrl.text,
-                                  )
-                                : 0,
-                            quantity: bloc.countCtrl.text.isNotEmpty
-                                ? int.parse(
-                                    bloc.countCtrl.text,
-                                  )
-                                : 0,
-                          ),
-                        ),
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text(
-                    "Add",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.indigo,
-                    ),
-                  ),
-                ),
-              ],
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+              itemCount: bloc.productsById[productIndex].children?[modelIndex]
+                  .prices?.length,
+              itemBuilder: (context, index) {
+                return _buildPrices(
+                    context, args, bloc, productIndex, modelIndex, index);
+              },
             );
           },
         );
@@ -271,7 +354,7 @@ class RemoveProductModelsPage extends StatelessWidget {
       child: Row(
         children: [
           Text(
-            bloc.productsById[parentIndex].children?[index].name ?? "",
+            bloc.productsById[productIndex].children?[modelIndex].name ?? "",
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -279,7 +362,7 @@ class RemoveProductModelsPage extends StatelessWidget {
           ),
           const Expanded(child: SizedBox()),
           Text(
-            "${bloc.productsById[parentIndex].children?[index].price} | ${bloc.productsById[parentIndex].children?[index].quantity}",
+            "${bloc.productsById[productIndex].children?[modelIndex].price} | ${bloc.productsById[productIndex].children?[modelIndex].quantity}",
             style: const TextStyle(
               color: Colors.indigo,
               fontSize: 16,

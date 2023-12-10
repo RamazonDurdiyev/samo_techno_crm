@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
 import 'package:samo_techno_crm/models/category_model/category_model.dart';
-import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:samo_techno_crm/ui/pages/products_page/products_event.dart';
 import 'package:samo_techno_crm/ui/pages/products_page/products_state.dart';
@@ -97,13 +98,13 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         );
         prefs.setBool("is_remove", true);
         Fluttertoast.showToast(
-          msg: "Added succesfully",
+          msg: "Muvaffaqiyatli",
           backgroundColor: Colors.indigo,
           textColor: Colors.white,
         );
       } else {
         Fluttertoast.showToast(
-          msg: "Already exist",
+          msg: "Savatda mavjud",
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );

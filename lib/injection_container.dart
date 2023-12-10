@@ -2,6 +2,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:samo_techno_crm/repo/place_repo/place_repo.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -65,40 +66,11 @@ Future<void> init() async {
       client: sl.get(),
     ),
   );
-
-  // sl.registerLazySingleton(
-  //   () => ProductRepo(
-  //     client: sl.get(),
-  //     networkInfo: sl.get(),
-  //   ),
-  // );
-
-  // sl.registerLazySingleton(
-  //   () => BannerRepo(
-  //     networkInfo: sl.get(),
-  //     client: dio,
-  //   ),
-  // );
-
-  // sl.registerLazySingleton(
-  //   () => CategoryRepo(
-  //     networkInfo: sl.get(),
-  //     client: dio,
-  //   ),
-  // );
-
-  // sl.registerLazySingleton(
-  //   () => ComplexRepo(
-  //     networkInfo: sl.get(),
-  //     localDb: sl.get(),
-  //     client: dio,
-  //   ),
-  // );
-
-  // sl.registerLazySingleton(
-  //   () => RegionDistrictRepo(
-  //     client: sl.get(),
-  //     networkInfo: sl.get(),
-  //   ),
-  // );
+  sl.registerLazySingleton(
+    () => PlaceRepo(
+      networkInfo: sl.get(),
+      client: sl.get(),
+      prefs: prefs,
+    ),
+  );
 }

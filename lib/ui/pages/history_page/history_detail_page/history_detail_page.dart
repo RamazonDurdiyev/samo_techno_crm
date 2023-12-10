@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide State;
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/history_page/history_event.dart';
+import 'package:samo_techno_crm/ui/pages/history_page/history_state.dart';
 
 class HistoryDetailPage extends StatelessWidget {
   const HistoryDetailPage({super.key});
@@ -17,7 +19,7 @@ class HistoryDetailPage extends StatelessWidget {
     );
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildBody(),
+      body: _buildBody(bloc),
     );
   }
 
@@ -69,38 +71,42 @@ class HistoryDetailPage extends StatelessWidget {
     );
   }
 
-  _buildBody() {
+  _buildBody(HistoryBloc bloc) {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: 8,
-          ),
-          _buildSeparateText("Ishchilar"),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildEmployeeStatus(),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildSeparatedTextWithStatus("Mahsulotlar"),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildListView(),
-          _buildSeparateText("Izoh"),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildReason(),
-        ],
-      ),
+      child: BlocBuilder<HistoryBloc, HistoryState>(
+          bloc: bloc,
+          builder: (context, state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildSeparateText("Ishchilar"),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildEmployeeStatus(bloc),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildSeparatedTextWithStatus("Mahsulotlar", bloc),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildListView(bloc),
+                _buildSeparateText("Izoh"),
+                const SizedBox(
+                  height: 8,
+                ),
+                _buildReason(bloc),
+              ],
+            );
+          }),
     );
   }
 
-  _buildSeparatedTextWithStatus(String text) {
+  _buildSeparatedTextWithStatus(String text, HistoryBloc bloc) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -114,17 +120,21 @@ class HistoryDetailPage extends StatelessWidget {
           ),
           const Expanded(child: SizedBox()),
           Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(
                 Radius.circular(100),
               ),
-              color: Color.fromARGB(255, 251, 18, 2),
+              color: bloc.historyDetail.status.toString() == "CONFIRMED"
+                  ? Colors.green
+                  : Colors.yellow,
             ),
-            child: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Text(
-                "Tasdiqlanmadi",
-                style: TextStyle(
+                bloc.historyDetail.status.toString() == "CONFIRMED"
+                    ? "Tasdiqlandi"
+                    : "Tasdiqlanmadi",
+                style: const TextStyle(
                   color: Colors.white,
                 ),
               ),
@@ -135,7 +145,7 @@ class HistoryDetailPage extends StatelessWidget {
     );
   }
 
-  _buildEmployeeStatus() {
+  _buildEmployeeStatus(HistoryBloc bloc) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 2),
       child: Card(
@@ -159,10 +169,10 @@ class HistoryDetailPage extends StatelessWidget {
                 const SizedBox(
                   height: 8,
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Omborga kiritgan shaxs:",
                       style: TextStyle(
                         fontSize: 16,
@@ -170,8 +180,8 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "Eldor Usmonov",
-                      style: TextStyle(
+                      bloc.historyDetail.addedPersonName ?? "",
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
@@ -188,7 +198,7 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      DateTime.now().toString().substring(0, 16),
+                      bloc.historyDetail.addedDate ?? "",
                       style: const TextStyle(
                         fontSize: 16,
                       ),
@@ -202,10 +212,10 @@ class HistoryDetailPage extends StatelessWidget {
                 const SizedBox(
                   height: 8,
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Tasdiqlamadi:",
                       style: TextStyle(
                         fontSize: 16,
@@ -213,8 +223,8 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "Muhammad Amin",
-                      style: TextStyle(
+                      bloc.historyDetail.checkedPerson ?? "",
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
@@ -231,7 +241,7 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      DateTime.now().toString().substring(0, 16),
+                      bloc.historyDetail.checkedDate ?? "",
                       style: const TextStyle(
                         fontSize: 16,
                       ),
@@ -256,19 +266,25 @@ class HistoryDetailPage extends StatelessWidget {
     );
   }
 
-  _buildListView() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(0),
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        return _buildListItem();
-      },
-    );
+  _buildListView(HistoryBloc bloc) {
+    return BlocBuilder<HistoryBloc, HistoryState>(
+        bloc: bloc,
+        builder: (context, state) {
+          final isLoading =
+              state is FetchHistoriesByIdState && state.state == State.loading;
+          return ListView.builder(
+            padding: const EdgeInsets.all(0),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: isLoading ? 0 : bloc.historyDetailProducts.length,
+            itemBuilder: (context, index) {
+              return _buildListItem(bloc, index);
+            },
+          );
+        });
   }
 
-  _buildReason() {
+  _buildReason(HistoryBloc bloc) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Card(
@@ -290,11 +306,11 @@ class HistoryDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          child: const Padding(
-            padding: EdgeInsets.all(8),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
             child: Text(
-              "Mahsulotlar sifati kerakli bo`lgani kabi emas",
-              style: TextStyle(
+              bloc.historyDetail.comment ?? "",
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -305,7 +321,7 @@ class HistoryDetailPage extends StatelessWidget {
     );
   }
 
-  _buildListItem() {
+  _buildListItem(HistoryBloc bloc, int index) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 2),
       child: Card(
@@ -329,10 +345,10 @@ class HistoryDetailPage extends StatelessWidget {
                 const SizedBox(
                   height: 8,
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Nomi:",
                       style: TextStyle(
                         fontSize: 16,
@@ -340,17 +356,17 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "Core i5 generation 11",
-                      style: TextStyle(
+                      bloc.historyDetailProducts[index].name.toString(),
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
                   ],
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Soni:",
                       style: TextStyle(
                         fontSize: 16,
@@ -358,17 +374,17 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "120",
-                      style: TextStyle(
+                      bloc.historyDetailProducts[index].quantity.toString(),
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
                   ],
                 ),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
+                    const Text(
                       "Narxi:",
                       style: TextStyle(
                         fontSize: 16,
@@ -376,8 +392,8 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      "150.000",
-                      style: TextStyle(
+                      bloc.historyDetailProducts[index].price.toString(),
+                      style: const TextStyle(
                         fontSize: 16,
                       ),
                     ),
@@ -394,7 +410,7 @@ class HistoryDetailPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      DateTime.now().toString().substring(0, 16),
+                      bloc.historyDetailProducts[index].date.toString(),
                       style: const TextStyle(
                         fontSize: 16,
                       ),

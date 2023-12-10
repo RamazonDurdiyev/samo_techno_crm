@@ -25,53 +25,54 @@ Map<String, dynamic> _$HistoryModelToJson(HistoryModel instance) =>
 
 HistoryItemModel _$HistoryItemModelFromJson(Map<String, dynamic> json) =>
     HistoryItemModel(
-      id: json['id'] as int?,
-      placeStatus: json['placeStatus'] as String?,
+      transactionId: json['transactionId'] as int?,
+      fio: json['fio'] as String?,
+      tradePlace: json['tradePlace'] as String?,
       status: json['status'] as String?,
       createdDate: json['createdDate'] as String?,
-      productName: json['productName'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-      quantity: json['quantity'] as int?,
-      price: (json['price'] as num?)?.toDouble(),
-      address: json['address'] as String?,
+      placeStatus: json['placeStatus'] as String?,
     );
 
 Map<String, dynamic> _$HistoryItemModelToJson(HistoryItemModel instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'placeStatus': instance.placeStatus,
+      'transactionId': instance.transactionId,
+      'fio': instance.fio,
+      'tradePlace': instance.tradePlace,
       'status': instance.status,
       'createdDate': instance.createdDate,
-      'productName': instance.productName,
-      'imageUrl': instance.imageUrl,
-      'quantity': instance.quantity,
-      'price': instance.price,
-      'address': instance.address,
+      'placeStatus': instance.placeStatus,
     };
 
 HistoryDetailModel _$HistoryDetailModelFromJson(Map<String, dynamic> json) =>
     HistoryDetailModel(
-      addedUserId: json['addedUserId'] as int?,
+      addedPersonName: json['addedPersonName'] as String?,
       addedDate: json['addedDate'] as String?,
-      status: json['status'] as int?,
-      isConfirmed: json['isConfirmed'] as int?,
-      products: json['products'] as List<dynamic>?,
+      checkedPerson: json['checkedPerson'] as String?,
+      checkedDate: json['checkedDate'] as String?,
+      status: json['status'] as String?,
+      comment: json['comment'] as String?,
+      products: (json['products'] as List<dynamic>?)
+          ?.map((e) =>
+              HistoryDetailProductModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$HistoryDetailModelToJson(HistoryDetailModel instance) =>
     <String, dynamic>{
-      'addedUserId': instance.addedUserId,
+      'addedPersonName': instance.addedPersonName,
       'addedDate': instance.addedDate,
+      'checkedPerson': instance.checkedPerson,
+      'checkedDate': instance.checkedDate,
       'status': instance.status,
-      'isConfirmed': instance.isConfirmed,
+      'comment': instance.comment,
       'products': instance.products,
     };
 
 HistoryDetailProductModel _$HistoryDetailProductModelFromJson(
         Map<String, dynamic> json) =>
     HistoryDetailProductModel(
+      id: json['id'] as int?,
       name: json['name'] as String?,
-      imageUrl: json['imageUrl'] as String?,
       price: (json['price'] as num?)?.toDouble(),
       quantity: json['quantity'] as int?,
       date: json['date'] as String?,
@@ -80,8 +81,8 @@ HistoryDetailProductModel _$HistoryDetailProductModelFromJson(
 Map<String, dynamic> _$HistoryDetailProductModelToJson(
         HistoryDetailProductModel instance) =>
     <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
-      'imageUrl': instance.imageUrl,
       'price': instance.price,
       'quantity': instance.quantity,
       'date': instance.date,

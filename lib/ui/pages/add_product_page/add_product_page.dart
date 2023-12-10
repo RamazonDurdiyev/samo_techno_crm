@@ -1,12 +1,13 @@
+import 'package:flutter/cupertino.dart'hide State;
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_state.dart';
-import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_models/add_product_models_page.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_page.dart';
 
 import 'add_product_event.dart';
+import 'add_product_models/add_product_models_page.dart';
 
 class AddProductPage extends StatelessWidget {
   const AddProductPage({super.key});
@@ -208,22 +209,60 @@ class AddProductPage extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 2),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
+         if (bloc.isSell == false) {
+            Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) {
                 return const AddProductModelsPage();
               },
               settings: RouteSettings(
-                arguments: 
-                  {
-                    "id": bloc.categoriesList[index].id,
-                    "category_item_name":bloc.categoriesList[bloc.currentIndexOfTab].categoryItems?[index].title,
-                  },
-                
+                arguments: {
+                  "id": bloc.categoriesList[bloc.currentIndexOfTab]
+                      .categoryItems?[index].id,
+                  "category_item_name": bloc
+                      .categoriesList[bloc.currentIndexOfTab]
+                      .categoryItems?[index]
+                      .title,
+                },
               ),
             ),
           );
+         }else{
+          showDialog(
+              context: context,
+              builder: (context) {
+                return  CupertinoAlertDialog(
+                  title: const Text(
+                    "Vazifani yakunlang!",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  content: const Text(
+                    "Mahsulotlarni qo`shish uchun avval savatdagi vazifani yakunlang!",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  actions: [
+                    CupertinoDialogAction(
+                      child: const Text(
+                        "Ok",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+         }
         },
         child: Card(
           shape: const RoundedRectangleBorder(

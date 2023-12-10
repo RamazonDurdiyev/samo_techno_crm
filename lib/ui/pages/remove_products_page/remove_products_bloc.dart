@@ -4,8 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
 import 'package:samo_techno_crm/models/category_model/category_model.dart';
-import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_event.dart';
 import 'package:samo_techno_crm/ui/pages/remove_products_page/remove_products_state.dart';
@@ -13,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
   final ProductRepo repo;
-  RemoveProductBloc ({required this.repo}) : super(Initial()) {
+  RemoveProductBloc({required this.repo}) : super(Initial()) {
     on<ChangeTabEvent>((event, emit) async {
       await _changeTab(emit, event.value);
     });
@@ -38,11 +39,13 @@ class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
   TextEditingController countCtrl = TextEditingController();
 
   // Data
-  
+
   List<CategoryModel> categoriesList = [];
   List<String> localProducts = [];
   List<RProductModel> productsById = [];
   int currentIndexOfTab = 0;
+  bool isSell = true;
+  String contractId = "";
   List<bool> isExpandedItems = List.filled(1000, false);
 
   _changeTab(Emitter<RemoveProductState> emit, int value) async {
@@ -68,6 +71,9 @@ class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
   _fetchCategories(Emitter<RemoveProductState> emit) async {
     try {
       emit(AddFetchCategoriesState(state: State.loading));
+      final prefs = await SharedPreferences.getInstance();
+      isSell = prefs.getBool("is_remove") ?? true;
+      contractId = prefs.getString("contract_id") ?? "";
       categoriesList = await repo.fetchCategories();
 
       if (kDebugMode) {
@@ -87,23 +93,33 @@ class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
       Emitter<RemoveProductState> emit, CartProductModel product) async {
     try {
       emit(SaveLocalToCartState(state: State.loading));
-      final prefs = await SharedPreferences.getInstance();
-      localProducts = prefs.getStringList("cart_products") ?? [];
-      if (localProducts.contains(json.encode(product.toJson())) != true) {
-        localProducts.add(json.encode(product.toJson()));
-        prefs.setStringList(
-          "cart_products",
-          localProducts,
-        );
-        prefs.setBool("is_remove", true);
-         Fluttertoast.showToast(
-          msg: "Added succesfully",
-          backgroundColor: Colors.indigo,
-          textColor: Colors.white,
-        );
+      if (contractCtrl.text.isNotEmpty == true) {
+        final prefs = await SharedPreferences.getInstance();
+        localProducts = prefs.getStringList("cart_products") ?? [];
+        prefs
+            .setString("contract_id", contractCtrl.text)
+            .then((value) => contractId = prefs.getString("contract_id") ?? "");
+        if (localProducts.contains(json.encode(product.toJson())) != true) {
+          localProducts.add(json.encode(product.toJson()));
+          prefs.setStringList(
+            "cart_products",
+            localProducts,
+          );
+          Fluttertoast.showToast(
+            msg: "Added succesfully",
+            backgroundColor: Colors.indigo,
+            textColor: Colors.white,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: "Already exist",
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+          );
+        }
       } else {
         Fluttertoast.showToast(
-          msg: "Already exist",
+          msg: "Kontrakt raqami kiritilmagan!",
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );
@@ -120,7 +136,9 @@ class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
   _fetchCategoryById(Emitter<RemoveProductState> emit, int id) async {
     try {
       emit(FetchCategoryByIdState(state: State.loading));
+      final prefs = await SharedPreferences.getInstance();
       productsById = await repo.rFetchProductById(id);
+      contractId = prefs.getString("contract_id") ?? "";
       if (kDebugMode) {
         print(
             "RemoveProductBloc _fetchCategoryById categoryById products => $productsById");

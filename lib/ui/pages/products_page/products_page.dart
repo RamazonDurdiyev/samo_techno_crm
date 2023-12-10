@@ -218,7 +218,10 @@ class ProductsPage extends StatelessWidget {
               },
               settings: RouteSettings(
                 arguments: {
-                  "id": bloc.categoriesList[index].id,
+                  "id": bloc
+                      .categoriesList[bloc.currentIndexOfTab]
+                      .categoryItems?[index]
+                      .id,
                   "category_item_name": bloc
                       .categoriesList[bloc.currentIndexOfTab]
                       .categoryItems?[index]

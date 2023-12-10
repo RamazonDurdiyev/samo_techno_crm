@@ -46,4 +46,5 @@ class SaveLocalToCartState extends AddProductState {
   @override
   List<Object?> get props => [state];
 }
+
 enum State { initial, loading, loaded, error }

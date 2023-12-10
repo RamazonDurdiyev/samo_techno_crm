@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 abstract class HistoryEvent extends Equatable {}
 
-class FetchHistoriesEvent extends HistoryEvent{
+class FetchHistoriesEvent extends HistoryEvent {
   @override
   List<Object?> get props => [];
 }
@@ -15,13 +15,12 @@ class FetchHistoriesByIdEvent extends HistoryEvent {
   List<Object?> get props => [id];
 }
 
-class FilterChangeIsSellEvent extends HistoryEvent{
+class FilterChangeIsSellEvent extends HistoryEvent {
   @override
-    List<Object?> get props => [];
-
+  List<Object?> get props => [];
 }
 
-class FetchMoreEvent extends HistoryEvent{
+class FetchMoreEvent extends HistoryEvent {
   @override
   List<Object?> get props => [];
 }

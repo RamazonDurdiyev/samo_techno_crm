@@ -22,71 +22,6 @@ class ProductModel {
 }
 
 @JsonSerializable()
-class DeleteProductModel {
-  final int? outContractNumber;
-  final int? sellPlaceId;
-  final int? inProductId;
-  final int? quantity;
-
-  DeleteProductModel({
-    this.outContractNumber,
-    this.sellPlaceId,
-    this.inProductId,
-    this.quantity,
-  });
-
-  factory DeleteProductModel.fromJson(Map<String, dynamic> data) =>
-      _$DeleteProductModelFromJson(data);
-
-  Map<String, dynamic> toJson() => _$DeleteProductModelToJson(this);
-}
-
-@JsonSerializable()
-class RProductModel {
-  final int? id;
-  final String? name;
-  int? totalPrice;
-  int? totalNumber;
-  final List<RProductItemModel>? children;
-
-  RProductModel({
-    this.id,
-    this.name,
-    this.totalPrice,
-    this.totalNumber,
-    this.children,
-  });
-
-  factory RProductModel.fromJson(Map<String, dynamic> data) =>
-      _$RProductModelFromJson(data);
-
-  Map<String, dynamic> toJson() => _$RProductModelToJson(this);
-}
-
-@JsonSerializable()
-class RProductItemModel {
-  final int? id;
-  final String? name;
-  final double? price;
-  final int? quantity;
-
-  final String? imageUrl;
-
-  RProductItemModel({
-    this.id,
-    this.name,
-    this.price,
-    this.quantity,
-    this.imageUrl,
-  });
-
-  factory RProductItemModel.fromJson(Map<String, dynamic> data) =>
-      _$RProductItemModelFromJson(data);
-
-  Map<String, dynamic> toJson() => _$RProductItemModelToJson(this);
-}
-
-@JsonSerializable()
 class ProductItemModel {
   final int? id;
   final String? name;
@@ -105,38 +40,28 @@ class ProductItemModel {
 }
 
 @JsonSerializable()
-class CartProductModel {
-  final int? productId;
-  final int? outContractNumber;
-  final int? sellPlaceId;
-  final int? inProductId;
-  final String? categoryName;
-  final String? name;
-  final int? quantity;
-  final int? price;
+class PostProductInfoModel {
+  final String? comment;
+  final int? tradePlaceId;
+  final List<Map<String,dynamic>>? products;
 
-  CartProductModel({
-    this.productId,
-    this.outContractNumber,
-    this.sellPlaceId,
-    this.inProductId,
-    this.categoryName,
-    this.name,
-    this.quantity,
-    this.price,
+  PostProductInfoModel({
+    this.comment,
+    this.tradePlaceId,
+    this.products,
   });
 
-  factory CartProductModel.fromJson(Map<String, dynamic> data) =>
-      _$CartProductModelFromJson(data);
+  factory PostProductInfoModel.fromJson(Map<String, dynamic> data) =>
+      _$PostProductInfoModelFromJson(data);
 
-  Map<String, dynamic> toJson() => _$CartProductModelToJson(this);
+  Map<String, dynamic> toJson() => _$PostProductInfoModelToJson(this);
 }
 
 @JsonSerializable()
 class PostProductModel {
   final int? productId;
   final int? quantity;
-  final int? price;
+  final double? price;
 
   PostProductModel({
     this.productId,
@@ -148,27 +73,6 @@ class PostProductModel {
       _$PostProductModelFromJson(data);
 
   Map<String, dynamic> toJson() => _$PostProductModelToJson(this);
-}
-
-@JsonSerializable()
-class UnconfirmedProductsModel {
-  final int? transactionId;
-  final int? status;
-  final String? tradePlaceName;
-  final String? date;
-  final int? inConfirmed;
-
-  UnconfirmedProductsModel(
-      {this.transactionId,
-      this.status,
-      this.tradePlaceName,
-      this.date,
-      this.inConfirmed});
-
-  factory UnconfirmedProductsModel.fromJson(Map<String, dynamic> data) =>
-      _$UnconfirmedProductsModelFromJson(data);
-
-  Map<String, dynamic> toJson() => _$UnconfirmedProductsModelToJson(this);
 }
 
 // @JsonSerializable()

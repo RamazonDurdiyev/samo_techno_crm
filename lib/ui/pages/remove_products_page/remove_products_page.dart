@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart' hide State;
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -207,7 +208,8 @@ class RemoveProductsPage extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 2),
       child: GestureDetector(
         onTap: () {
-          Navigator.push(
+          if (bloc.isSell == true) {
+            Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) {
@@ -225,6 +227,42 @@ class RemoveProductsPage extends StatelessWidget {
               ),
             ),
           );
+          }else{
+            showDialog(
+              context: context,
+              builder: (context) {
+                return  CupertinoAlertDialog(
+                  title: const Text(
+                    "Vazifani yakunlang!",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  content: const Text(
+                    "Mahsulotlarni chiqarish uchun avval savatdagi vazifani yakunlang!",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                  actions: [
+                    CupertinoDialogAction(
+                      child: const Text(
+                        "Ok",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          }
+          
         },
         child: Card(
           shape: const RoundedRectangleBorder(

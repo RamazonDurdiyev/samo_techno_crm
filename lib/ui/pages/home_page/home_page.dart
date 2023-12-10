@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:samo_techno_crm/models/place_model/place_model.dart';
+import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_page.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_event.dart';
 import 'package:samo_techno_crm/ui/pages/home_page/home_state.dart';
@@ -26,16 +29,15 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = HomeBloc();
+    bloc.add(CheckAddressSelectedEvent());
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBar(context, bloc),
       drawer: _buildDrawer(context, bloc),
-      body: _buildBody(context),
+      body: _buildBody(context, bloc),
     );
   }
 
-  _buildAppBar(
-    BuildContext context,
-  ) {
+  _buildAppBar(BuildContext context, HomeBloc bloc) {
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.transparent,
@@ -76,6 +78,10 @@ class HomePage extends StatelessWidget {
                 builder: (context) {
                   return const CartPage();
                 },
+              ),
+            ).then(
+              (value) => bloc.add(
+                CheckAddressSelectedEvent(),
               ),
             );
           },
@@ -175,7 +181,7 @@ class HomePage extends StatelessWidget {
                     color: Colors.indigo,
                   ),
                   title: const Text(
-                    'Settings',
+                    'Sozlamalar',
                     style: TextStyle(
                       color: Colors.black,
                     ),
@@ -200,7 +206,7 @@ class HomePage extends StatelessWidget {
                     color: Colors.indigo,
                   ),
                   title: const Text(
-                    'Logout',
+                    'Chiqish',
                     style: TextStyle(
                       color: Colors.black,
                     ),
@@ -211,14 +217,14 @@ class HomePage extends StatelessWidget {
                       builder: (context) {
                         return CupertinoAlertDialog(
                           title: const Text(
-                            "Log out?",
+                            "Chiqish",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           content: const Text(
-                            "Are you sure to log out your account?",
+                            "Ma`lumotlarni o`chirib, chiqib ketishni istaysizmi?",
                             style: TextStyle(fontSize: 16),
                           ),
                           actions: [
@@ -233,7 +239,7 @@ class HomePage extends StatelessWidget {
                                 ), (route) => false);
                               },
                               child: const Text(
-                                "Yes",
+                                "Ha",
                                 style: TextStyle(
                                     color: Colors.red,
                                     fontWeight: FontWeight.bold,
@@ -245,7 +251,7 @@ class HomePage extends StatelessWidget {
                                 Navigator.pop(context);
                               },
                               child: const Text(
-                                "Cancel",
+                                "Yo`q",
                                 style: TextStyle(
                                     color: Colors.indigo,
                                     fontWeight: FontWeight.bold,
@@ -277,63 +283,194 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  _buildBody(BuildContext context) {
+  _buildBody(BuildContext context, HomeBloc bloc) {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(
-            height: 16,
-          ),
-          _buildSeparateText("Analytics"),
-          const SizedBox(
-            height: 8,
-          ),
-          DynamicChart(),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildSeparateText("Actions"),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildCarousel(context),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildSeparateText("Services"),
-          const SizedBox(
-            height: 8,
-          ),
-          _buildServicesGrid(context),
-        ],
+      child: BlocBuilder<HomeBloc, HomeState>(
+        bloc: bloc,
+        builder: (context, state) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(
+                height: 16,
+              ),
+              bloc.selectedAddress.isNotEmpty == true &&
+                      PlaceModel.fromJson(json.decode(bloc.selectedAddress))
+                              .name !=
+                          null
+                  ? _buildPartSelectedAddress(context, bloc)
+                  : const SizedBox(),
+              SizedBox(
+                height: bloc.selectedAddress.isNotEmpty == true &&
+                        PlaceModel.fromJson(
+                              json.decode(
+                                bloc.selectedAddress,
+                              ),
+                            ).name !=
+                            null
+                    ? 8
+                    : 0,
+              ),
+              _buildSeparateText("Analitika"),
+              const SizedBox(
+                height: 8,
+              ),
+              DynamicChart(),
+              const SizedBox(
+                height: 8,
+              ),
+              _buildSeparateText("Tezkor xizmatlar"),
+              const SizedBox(
+                height: 8,
+              ),
+              _buildCarousel(context, bloc),
+              const SizedBox(
+                height: 8,
+              ),
+              _buildSeparateText("Xizmatlar"),
+              const SizedBox(
+                height: 8,
+              ),
+              _buildServicesGrid(context),
+            ],
+          );
+        },
       ),
     );
   }
 
-  _buildCarousel(BuildContext context) {
-    return CarouselSlider(
-      items: [
-        _buildCarouselItem(
-          context,
-          Icons.add_circle,
-          "Mahsulot kiritish",
-          const SearchAddressPage(),
+  _buildPartSelectedAddress(BuildContext context, HomeBloc bloc) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16,
+      ),
+      child: Container(
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: Colors.indigo,
+            ),
+          ),
         ),
-        _buildCarouselItem(
-          context,
-          Icons.remove_circle,
-          "Mahsulot chiqarish",
-          const RemoveProductsPage(),
+        child: Row(
+          children: [
+            Text(
+              "${PlaceModel.fromJson(
+                json.decode(
+                  bloc.selectedAddress,
+                ),
+              ).name}",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const Expanded(child: SizedBox()),
+            InkWell(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CupertinoAlertDialog(
+                      title: const Text(
+                        "Manzilni o`chirish",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      content: const Text(
+                        "Manzilni va u bilan bog`liq bo`lgan mahsulotlarni o`chirish?",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      actions: [
+                        CupertinoDialogAction(
+                          onPressed: () {
+                            bloc.add(RemoveAddressEvent());
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "Ha",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        CupertinoDialogAction(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            "Yo`q",
+                            style: TextStyle(
+                                color: Colors.indigo,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: const Icon(
+                Icons.dangerous,
+                color: Colors.red,
+              ),
+            ),
+          ],
         ),
-      ],
-      options:
-          CarouselOptions(height: 100, aspectRatio: 2, viewportFraction: 0.9),
+      ),
     );
   }
 
-  _buildCarouselItem(
-      BuildContext context, IconData icon, String text, Widget page) {
+  _buildCarousel(BuildContext context, HomeBloc bloc) {
+    return BlocBuilder<HomeBloc, HomeState>(
+      bloc: bloc,
+      builder: (context, state) {
+        return CarouselSlider(
+          items: [
+            _buildCarouselItem(
+                context,
+                bloc,
+                Icons.add_circle,
+                "Mahsulot kiritish",
+                bloc.selectedAddress.isNotEmpty == true &&
+                        PlaceModel.fromJson(
+                              json.decode(bloc.selectedAddress),
+                            ).id !=
+                            null
+                    ? const AddProductPage()
+                    : const SearchAddressPage(),
+                false),
+            _buildCarouselItem(
+              context,
+              bloc,
+              Icons.remove_circle,
+              "Mahsulot chiqarish",
+              bloc.selectedAddress.isNotEmpty == true &&
+                      PlaceModel.fromJson(
+                            json.decode(bloc.selectedAddress),
+                          ).id !=
+                          null
+                  ? const RemoveProductsPage()
+                  : const SearchAddressPage(),
+              true,
+            ),
+          ],
+          options: CarouselOptions(
+              height: 100, aspectRatio: 2, viewportFraction: 0.9),
+        );
+      },
+    );
+  }
+
+  _buildCarouselItem(BuildContext context, HomeBloc bloc, IconData icon,
+      String text, Widget page, bool isSellPage) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -342,6 +479,11 @@ class HomePage extends StatelessWidget {
             builder: (context) {
               return page;
             },
+            settings: RouteSettings(arguments: isSellPage ? "SELL" : "BUY"),
+          ),
+        ).then(
+          (value) => bloc.add(
+            CheckAddressSelectedEvent(),
           ),
         );
       },

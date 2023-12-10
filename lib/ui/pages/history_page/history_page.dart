@@ -14,6 +14,14 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = HistoryBloc(repo: GetIt.instance.get());
+    bloc.scrlController.addListener(
+      () {
+        if (bloc.scrlController.position.pixels ==
+            bloc.scrlController.position.maxScrollExtent) {
+          bloc.add(FetchMoreEvent());
+        }
+      },
+    );
     bloc.add(FetchHistoriesEvent());
     return Scaffold(
       appBar: _buildAppBar(context),
@@ -180,17 +188,10 @@ class HistoryPage extends StatelessWidget {
   }
 
   _buildListView(HistoryBloc bloc) {
-    return BlocConsumer<HistoryBloc, HistoryState>(
+    return BlocBuilder<HistoryBloc, HistoryState>(
       bloc: bloc,
-      listener: (context, state) {
-          bloc.scrlController.addListener(
-            () {
-              if (bloc.scrlController.position.pixels ==
-                  bloc.scrlController.position.maxScrollExtent) {
-                bloc.add(FetchMoreEvent());
-              }
-            },
-          );
+      buildWhen: (previous, current) {
+        return current is FetchHistoriesState || current is FetchMoreState;
       },
       builder: (context, state) {
         final isLoading =
@@ -232,7 +233,7 @@ class HistoryPage extends StatelessWidget {
                 },
                 settings: RouteSettings(
                   arguments: {
-                    "id": bloc.historyItems[index].id,
+                    "id": bloc.historyItems[index].transactionId,
                   },
                 ),
               ),
@@ -254,24 +255,9 @@ class HistoryPage extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Colors.indigo,
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white,
-                          child: Icon(
-                            Icons.person_2,
-                            color: Colors.indigo,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      const Text(
-                        "Falonchi",
-                        style: TextStyle(
+                      Text(
+                        bloc.historyItems[index].fio.toString(),
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -280,13 +266,12 @@ class HistoryPage extends StatelessWidget {
                         child: SizedBox(),
                       ),
                       Icon(
-                        bloc.historyItems[index].status == "NOT_CONFIRMED"
+                        bloc.historyItems[index].status == "IN_PROGRESS"
                             ? Icons.error
                             : Icons.check_circle,
-                        color:
-                            bloc.historyItems[index].status == "NOT_CONFIRMED"
-                                ? Colors.red
-                                : Colors.green,
+                        color: bloc.historyItems[index].status == "IN_PROGRESS"
+                            ? Colors.yellow
+                            : Colors.green,
                       ),
                     ],
                   ),
@@ -316,7 +301,7 @@ class HistoryPage extends StatelessWidget {
                           scrollAxis: Axis.horizontal,
                           fadingEdgeEndFraction: 0.2,
                           fadingEdgeStartFraction: 0.2,
-                          text: "${bloc.historyItems[index].address}"
+                          text: "${bloc.historyItems[index].tradePlace}"
                               "         ",
                         ),
                       ),
@@ -355,7 +340,7 @@ class HistoryPage extends StatelessWidget {
                       Container(
                         decoration: BoxDecoration(
                           color:
-                              bloc.historyItems[index].status == "NOT_CONFIRMED"
+                              bloc.historyItems[index].status == "IN_PROGRESS"
                                   ? const Color.fromARGB(255, 251, 18, 2)
                                   : Colors.green,
                           borderRadius: const BorderRadius.all(
@@ -365,7 +350,7 @@ class HistoryPage extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
-                            bloc.historyItems[index].status == "NOT_CONFIRMED"
+                            bloc.historyItems[index].status == "IN_PROGRESS"
                                 ? "Tasdiqlanmadi"
                                 : "Tasdiqlandi",
                             style: const TextStyle(color: Colors.white),

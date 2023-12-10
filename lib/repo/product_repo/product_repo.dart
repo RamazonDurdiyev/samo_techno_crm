@@ -6,6 +6,8 @@ import 'package:samo_techno_crm/core/network/network_info.dart';
 import 'package:samo_techno_crm/models/category_model/category_model.dart';
 import 'package:samo_techno_crm/models/history_model/history_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
+import 'package:samo_techno_crm/models/unconfirmed_products/unconfirmed_products_model.dart';
 
 class ProductRepo {
   final NetworkInfo networkInfo;
@@ -31,20 +33,21 @@ class ProductRepo {
     }
   }
 
-  Future<HistoryModel> fetchHistories(String placeStatus, int page) async {
+  Future<HistoryModel> fetchHistories(String placeStatus, int page,) async {
     if (await networkInfo.isConnected) {
       final res = await client.post(FETCH_HISTORIES_API,
           options: Options(
             headers: {"Access-Control-Allow-Origin": ":*"},
           ),
-          data: {"placeStatus": placeStatus, "page": page, "size": 10});
+          queryParameters: {"status": placeStatus},
+          data: {"page": page, "size": 10,});
+
       if (kDebugMode) {
         print("fetchHistories data => $res");
       }
       if (kDebugMode) {
         print("HHHHH func called");
       }
-
       return HistoryModel.fromJson(res.data["data"]);
     } else {
       throw NetworkException();
@@ -58,8 +61,10 @@ class ProductRepo {
   Future<HistoryDetailModel> fetchHistoryProductById(
       int id, String placeStatus) async {
     if (await networkInfo.isConnected) {
-      final res = await client.get(FETCH_HISTORY_BY_ID,
-          data: {"id": id, "placeStatus": placeStatus});
+      final res = await client.get(
+        "$FETCH_HISTORY_BY_ID$id",
+        queryParameters: {"status": placeStatus},
+      );
       if (kDebugMode) {
         print("fetchHistoriesById data => $res");
       }
@@ -69,12 +74,16 @@ class ProductRepo {
     }
   }
 
-  Future<bool> postProducts(List<PostProductModel> newProduct) async {
+  Future<bool> postProducts(
+      List<PostProductModel> newProduct, int tradePlaceId) async {
     if (await networkInfo.isConnected) {
       await client.post(
-        queryParameters: {"tradePlaceId": 1, "comment": "nima"},
         POST_PRODUCT_API,
-        data: newProduct.map((product) => product.toJson()).toList(),
+        data: PostProductInfoModel(
+                comment: "OK",
+                tradePlaceId: tradePlaceId,
+                products: newProduct.map((e) => e.toJson()).toList())
+            .toJson(),
       );
       return true;
     } else {
@@ -83,15 +92,19 @@ class ProductRepo {
   }
 
 ///////////////////////////////////////////////////////////
-//// ************** Delete product By Id ************* ////
+//// ************** Delete product Id ************* ////
 ///////////////////////////////////////////////////////////
 
-  Future<bool> deleteProducts(List<DeleteProductModel> productDelete) async {
+  Future<bool> deleteProducts(List<DeleteProductModel> productsDelete,
+      int tradePlaceId, int contractId) async {
     if (await networkInfo.isConnected) {
       await client.post(
-        queryParameters: {"tradePlaceId": 2, "comment": "nima"},
         DELETE_PRODUCTS_API,
-        data: productDelete.map((product) => product.toJson()).toList(),
+        data: DeleteProductInfoModel(
+          contractId: 0,
+          placeId: tradePlaceId,
+          products: productsDelete.map((e) => e.toJson()).toList(),
+        ).toJson(),
       );
       return true;
     } else {
@@ -131,7 +144,7 @@ class ProductRepo {
   Future<List<RProductModel>> rFetchProductById(int id) async {
     if (await networkInfo.isConnected) {
       final res = await client.get(
-        "$REMOVE_GET_PRODUCT_BY_ID$id",
+        "${REMOVE_GET_PRODUCT_BY_ID}1",
         options: Options(
           headers: {"Access-Control-Allow-Origin": ":*"},
         ),

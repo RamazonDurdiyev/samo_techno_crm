@@ -1,9 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
 import 'package:samo_techno_crm/models/category_model/category_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
@@ -12,7 +12,7 @@ import 'package:samo_techno_crm/ui/pages/add_product_page/add_product_state.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
- final ProductRepo repo;
+  final ProductRepo repo;
   AddProductBloc({required this.repo}) : super(Initial()) {
     on<ChangeTabEvent>((event, emit) async {
       await _changeTab(emit, event.value);
@@ -43,6 +43,7 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
   List<ProductModel> productsById = [];
   int currentIndexOfTab = 0;
   List<bool> isExpandedItems = List.filled(1000, false);
+  bool isSell = false;
 
   _changeTab(Emitter<AddProductState> emit, int value) async {
     try {
@@ -67,8 +68,9 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
   _fetchCategories(Emitter<AddProductState> emit) async {
     try {
       emit(AddFetchCategoriesState(state: State.loading));
+      final prefs = await SharedPreferences.getInstance();
+      isSell = prefs.getBool("is_remove") ?? false;
       categoriesList = await repo.fetchCategories();
-
       if (kDebugMode) {
         print(
             "AddProductBloc _fetchCategories categoriesList => $categoriesList");
@@ -94,14 +96,14 @@ class AddProductBloc extends Bloc<AddProductEvent, AddProductState> {
           "cart_products",
           localProducts,
         );
-         Fluttertoast.showToast(
-          msg: "Added succesfully",
+        Fluttertoast.showToast(
+          msg: "Muvaffaqiyatli",
           backgroundColor: Colors.indigo,
           textColor: Colors.white,
         );
       } else {
         Fluttertoast.showToast(
-          msg: "Already exist",
+          msg: "Savatda mavjud",
           backgroundColor: Colors.red,
           textColor: Colors.white,
         );

@@ -37,7 +37,7 @@ class LoginRepo {
   Future<LoginData> refresh(String refreshToken) async {
     if (await networkInfo.isConnected) {
       print(
-          "${refreshToken}++++++++++++++++========================++++++++++++++++++++++ refresh token function in repo");
+          "$refreshToken ++++++++++++++++========================++++++++++++++++++++++ refresh token function in repo");
       final ref = await client.post(
         REFRESH_TOKEN_API,
         data: {"refreshToken": refreshToken},

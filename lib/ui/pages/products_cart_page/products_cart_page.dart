@@ -3,7 +3,10 @@ import 'package:flutter/cupertino.dart' hide State;
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
+import 'package:samo_techno_crm/models/place_model/place_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 import 'package:samo_techno_crm/ui/pages/products_cart_page/products_cart_state.dart';
 import 'products_cart_bloc.dart';
 import 'products_cart_event.dart';
@@ -34,6 +37,10 @@ class CartPage extends StatelessWidget {
                   const SizedBox(
                     height: 8,
                   ),
+                  _buildAddressText(bloc),
+                  SizedBox(
+                    height: bloc.selectedPlace.isNotEmpty == true ? 8 : 0,
+                  ),
                   _buildProductsList(bloc),
                   const SizedBox(
                     height: 8,
@@ -46,10 +53,37 @@ class CartPage extends StatelessWidget {
     );
   }
 
+  _buildAddressText(ProductsCartBloc bloc) {
+    return bloc.selectedPlace.isNotEmpty == true
+        ? Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+            ),
+            child: Text(
+              bloc.isSell == true
+                  ? "Yuborish manzili: ${PlaceModel.fromJson(
+                      json.decode(
+                        bloc.selectedPlace,
+                      ),
+                    ).name}"
+                  : "Olib kelindi: ${PlaceModel.fromJson(
+                      json.decode(
+                        bloc.selectedPlace,
+                      ),
+                    ).name}",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          )
+        : const SizedBox();
+  }
+
   _buildEmptyText() {
     return const Center(
       child: Text(
-        "No elements",
+        "Mahsulot yo`q",
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 18,
@@ -68,71 +102,119 @@ class CartPage extends StatelessWidget {
         ),
         child: ElevatedButton(
           onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) {
-                return CupertinoAlertDialog(
-                  title: Text(
-                    bloc.isRemove == true ? "Remove products" : "Post products",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  content: Text(
-                    bloc.isRemove == true
-                        ? "Are you sure to remove products in cart?"
-                        : "Are you sure to post products in cart?",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  actions: [
-                    CupertinoDialogAction(
-                      onPressed: () {
-                        bloc.isRemove == true
-                            ? bloc.add(
-                                DeleteProductEvent(
-                                  productDelete: bloc.localProducts
-                                      .map<DeleteProductModel>((e) {
-                                    return DeleteProductModel.fromJson(
-                                        json.decode(e));
-                                  }).toList(),
-                                ),
-                              )
-                            : bloc.add(
-                                PostProductEvent(
-                                  newProducts: bloc.localProducts
-                                      .map<PostProductModel>((e) {
-                                    return PostProductModel.fromJson(
-                                        json.decode(e));
-                                  }).toList(),
-                                ),
-                              );
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Yes",
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
+            if (bloc.selectedPlace.isNotEmpty == true &&
+                PlaceModel.fromJson(json.decode(bloc.selectedPlace)).id !=
+                    null &&
+                bloc.localProducts.isNotEmpty == true) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CupertinoAlertDialog(
+                    title: Text(
+                      bloc.isSell == true
+                          ? "Mahsulot chiqarish"
+                          : "Mahsulot qo`shish",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    CupertinoDialogAction(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Cancel",
-                        style: TextStyle(
-                            color: Colors.indigo,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16),
+                    content: Text(
+                      bloc.isSell == true
+                          ? "Mahsulotlarni chiqarmoqchimisiz?"
+                          : "Mahsulotlarni qo`shmoqchimisiz?",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    actions: [
+                      CupertinoDialogAction(
+                        onPressed: () {
+                          bloc.isSell == true
+                              ? bloc.add(
+                                  DeleteProductEvent(
+                                    productDelete: bloc.localProducts
+                                        .map<DeleteProductModel>(
+                                      (e) {
+                                        return DeleteProductModel.fromJson(
+                                          json.decode(e),
+                                        );
+                                      },
+                                    ).toList(),
+                                  ),
+                                )
+                              : bloc.add(
+                                  PostProductEvent(
+                                    newProducts: bloc.localProducts
+                                        .map<PostProductModel>(
+                                      (e) {
+                                        return PostProductModel.fromJson(
+                                          json.decode(e),
+                                        );
+                                      },
+                                    ).toList(),
+                                  ),
+                                );
+                          bloc.add(DeleteAllLocalProductsEvent());
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          "Ha",
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
+                        ),
+                      ),
+                      CupertinoDialogAction(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          "Yo`q",
+                          style: TextStyle(
+                              color: Colors.indigo,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return CupertinoAlertDialog(
+                    title: const Text(
+                      "Ma`lumotlar to`liq emas!",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                );
-              },
-            );
+                    content: const Text(
+                      "Ma`lumotlar to`liq kiritilmagan ma`lumotlarni to`liq kiritib qayta urinib ko`ring",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                    ),
+                    actions: [
+                      CupertinoDialogAction(
+                        child: const Text(
+                          "Ok",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            }
           },
           style: ElevatedButton.styleFrom(
             shape: const RoundedRectangleBorder(
@@ -178,14 +260,14 @@ class CartPage extends StatelessWidget {
                 builder: (context) {
                   return CupertinoAlertDialog(
                     title: const Text(
-                      "Delete products",
+                      "Mahsulotlarni o`chirish",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     content: const Text(
-                      "Are you sure to delete all products in cart?",
+                      "Savatdagi mahsulotlarni ochirmoqchimisiz?",
                       style: TextStyle(fontSize: 16),
                     ),
                     actions: [
@@ -195,11 +277,12 @@ class CartPage extends StatelessWidget {
                           Navigator.pop(context);
                         },
                         child: const Text(
-                          "Yes",
+                          "Ha",
                           style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,),
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       CupertinoDialogAction(
@@ -207,7 +290,7 @@ class CartPage extends StatelessWidget {
                           Navigator.pop(context);
                         },
                         child: const Text(
-                          "Cancel",
+                          "Yo`q",
                           style: TextStyle(
                             color: Colors.indigo,
                             fontWeight: FontWeight.bold,
@@ -263,8 +346,6 @@ class CartPage extends StatelessWidget {
     return BlocBuilder<ProductsCartBloc, ProductsCartState>(
       bloc: bloc,
       builder: (context, state) {
-        final isLoading =
-            state is GetLocalProductsState && state.state == State.loading;
         return Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(
@@ -275,7 +356,6 @@ class CartPage extends StatelessWidget {
               return _buildProductsItem(
                 bloc,
                 index,
-                isLoading,
                 bloc.categoryNames[index] ?? "",
               );
             },
@@ -288,7 +368,6 @@ class CartPage extends StatelessWidget {
   _buildProductsItem(
     ProductsCartBloc bloc,
     int parentIndex,
-    bool isLoading,
     String categoryName,
   ) {
     return Card(
@@ -445,9 +524,15 @@ class CartPage extends StatelessWidget {
           ),
           InkWell(
             onTap: () {
-              bloc.add(DeleteLocalProductEvent(
-                  product:
-                      CartProductModel.fromJson(json.decode(list[index]))));
+              bloc.add(
+                DeleteLocalProductEvent(
+                  product: CartProductModel.fromJson(
+                    json.decode(
+                      list[index],
+                    ),
+                  ),
+                ),
+              );
             },
             child: const Icon(
               Icons.remove_circle,

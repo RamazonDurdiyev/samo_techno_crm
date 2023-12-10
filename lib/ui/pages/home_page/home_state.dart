@@ -15,4 +15,24 @@ class RemoveUserState extends HomeState{
   List<Object?> get props => [state];
 }
 
+
+class CheckAddressSelectedState extends HomeState{
+  final State state;
+
+  CheckAddressSelectedState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
+class RemoveAddressState extends HomeState{
+  final State state;
+
+  RemoveAddressState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
+
+
 enum State {initial,loading,loaded,error}
+
+

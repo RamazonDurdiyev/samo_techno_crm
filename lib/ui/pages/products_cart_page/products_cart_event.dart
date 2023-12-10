@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
 import 'package:samo_techno_crm/models/product_model/product_model.dart';
+import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
 
 abstract class ProductsCartEvent extends Equatable{}
 
