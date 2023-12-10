@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:samo_techno_crm/ui/pages/confirm_employees_page/add_employee_page/add_employee_page.dart';
-import 'package:samo_techno_crm/ui/pages/confirm_employees_page/employee_info_page/employee_info_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:samo_techno_crm/ui/pages/employees_page/add_employee_page/add_employee_page.dart';
+import 'package:samo_techno_crm/ui/pages/employees_page/confirm_employees_page/cofirm_employees_event.dart';
+import 'package:samo_techno_crm/ui/pages/employees_page/confirm_employees_page/confirm_employees_bloc.dart';
+import 'package:samo_techno_crm/ui/pages/employees_page/confirm_employees_page/employee_info_page/employee_info_page.dart';
 
 class ConfirmEmployeesPage extends StatelessWidget {
   const ConfirmEmployeesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final bloc = ConfirmEmployeesBloc(repo: GetIt.instance.get());
+    bloc.add(FetchEmployeesEvent());
     return Scaffold(
       appBar: _buildAppBar(context),
-      body: _buildBody(),
+      body: _buildBody(bloc),
       floatingActionButton: _buildFloatingButton(context),
     );
   }
@@ -68,7 +74,7 @@ class ConfirmEmployeesPage extends StatelessWidget {
     );
   }
 
-  _buildBody() {
+  _buildBody(ConfirmEmployeesBloc bloc) {
     return Stack(
       children: [
         SingleChildScrollView(
@@ -77,7 +83,7 @@ class ConfirmEmployeesPage extends StatelessWidget {
               const SizedBox(
                 height: 8,
               ),
-              _buildListView(),
+              _buildListView(bloc),
             ],
           ),
         ),
@@ -92,19 +98,27 @@ class ConfirmEmployeesPage extends StatelessWidget {
     );
   }
 
-  _buildListView() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(0),
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: 4,
-      itemBuilder: (context, index) {
-        return _buildListItem(context);
-      },
-    );
+  _buildListView(ConfirmEmployeesBloc bloc) {
+    return BlocBuilder(
+        bloc: bloc,
+        builder: (context, state) {
+          return ListView.builder(
+            padding: const EdgeInsets.all(0),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: bloc.users.length,
+            itemBuilder: (context, index) {
+              return _buildListItem(context, bloc, index);
+            },
+          );
+        });
   }
 
-  _buildListItem(BuildContext context) {
+  _buildListItem(
+    BuildContext context,
+    ConfirmEmployeesBloc bloc,
+    int index,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, bottom: 2),
       child: GestureDetector(
@@ -115,6 +129,11 @@ class ConfirmEmployeesPage extends StatelessWidget {
               builder: (context) {
                 return const EmployeeInfoPage();
               },
+              settings: RouteSettings(
+                arguments: {
+                  "id": bloc.users[index].id,
+                },
+              ),
             ),
           );
         },
@@ -131,12 +150,12 @@ class ConfirmEmployeesPage extends StatelessWidget {
                 Radius.circular(16),
               ),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                 ),
-                Padding(
+                const Padding(
                   padding: EdgeInsets.symmetric(
                     vertical: 8,
                   ),
@@ -153,12 +172,12 @@ class ConfirmEmployeesPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 16,
                 ),
                 Text(
-                  "Falonchiyev Pistonchi",
-                  style: TextStyle(
+                  bloc.users[index].fio ?? "",
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),

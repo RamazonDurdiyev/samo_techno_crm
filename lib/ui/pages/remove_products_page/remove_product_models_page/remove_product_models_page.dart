@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:samo_techno_crm/models/cart_product/cart_product_model.dart';
 import 'package:samo_techno_crm/models/remove_product/remove_product_model.dart';
@@ -237,29 +238,45 @@ class RemoveProductModelsPage extends StatelessWidget {
               onPressed: () {
                 if (bloc.productsById[productIndex].children?[modelIndex] !=
                     null) {
-                  bloc.add(
-                    SaveLocalToCartEvent(
-                      product: CartProductModel(
-                        inProductId: bloc
-                            .productsById[productIndex]
-                            .children?[modelIndex]
-                            .prices?[priceIndex]
-                            .inproductId,
-                        name: bloc.productsById[productIndex]
-                            .children?[modelIndex].name,
-                        categoryName: args["category_item_name"],
-                        price: bloc.productsById[productIndex]
-                            .children?[modelIndex].prices?[priceIndex].price,
-                        quantity: bloc.countCtrl.text.isNotEmpty
-                            ? int.parse(
-                                bloc.countCtrl.text,
-                              )
-                            : 0,
-                        productId: bloc.productsById[productIndex]
-                            .children?[modelIndex].id,
-                      ),
-                    ),
-                  );
+                  (bloc.productsById[productIndex].children![modelIndex]
+                                      .quantity !=
+                                  null &&
+                              bloc.countCtrl.text.isNotEmpty) &&
+                          int.parse(bloc.countCtrl.text) <=
+                              bloc.productsById[productIndex]
+                                  .children![modelIndex].quantity!
+                      ? bloc.add(
+                          SaveLocalToCartEvent(
+                            product: CartProductModel(
+                              inProductId: bloc
+                                  .productsById[productIndex]
+                                  .children?[modelIndex]
+                                  .prices?[priceIndex]
+                                  .inproductId,
+                              name: bloc.productsById[productIndex]
+                                  .children?[modelIndex].name,
+                              categoryName: args["category_item_name"],
+                              price: bloc
+                                  .productsById[productIndex]
+                                  .children?[modelIndex]
+                                  .prices?[priceIndex]
+                                  .price,
+                              quantity: bloc.countCtrl.text.isNotEmpty
+                                  ? int.parse(
+                                      bloc.countCtrl.text,
+                                    )
+                                  : 0,
+                              productId: bloc.productsById[productIndex]
+                                  .children?[modelIndex].id,
+                            ),
+                          ),
+                        )
+                      : Fluttertoast.showToast(
+                          msg: "Mahsulot yetarli emas!",
+                          gravity: ToastGravity.BOTTOM,
+                          textColor: Colors.white,
+                          backgroundColor: Colors.red,
+                      );
                   Navigator.pop(context);
                 }
               },

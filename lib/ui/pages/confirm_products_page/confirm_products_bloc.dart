@@ -11,11 +11,15 @@ class ConfirmProductsBloc extends Bloc<ConfirmProductsEvent,ConfirmProductsState
     on<FetchUnconfirmedsEvent>((event, emit)async{
       await _fetchUnconfirmeds(emit);
     });
+    on<FetchUnconfirmedByIdEvent>((event, emit) async{
+      await _fetchUnconfirmedsById(emit,event.status,event.transactionId);
+    });
   }
 
   // Data
 
   List<UnconfirmedProductsModel> unconfirmeds = [];
+  List<UnconfirmedByIdProductsModel> detailedUnconfirmeds = [];
   
   _fetchUnconfirmeds(Emitter<ConfirmProductsState> emit) async{
     try {
@@ -27,6 +31,22 @@ class ConfirmProductsBloc extends Bloc<ConfirmProductsEvent,ConfirmProductsState
       if (kDebugMode) {
         print("ConfirmProductsBloc _fetchUnconfirmeds error => $e");
       }
+    }
+  }
+  
+  _fetchUnconfirmedsById(Emitter<ConfirmProductsState> emit, String status, int transactionId)async{
+    try {
+      emit(FetchUnconfirmedByIdState(state: State.loading));
+      detailedUnconfirmeds = await repo.fetchUnconfirmedById(status, transactionId);
+      if (kDebugMode) {
+        print("ConfirmProductsBloc _fetchUnconfirmedsById detailedUnconfirmeds => $detailedUnconfirmeds");
+      }
+      emit(FetchUnconfirmedByIdState(state: State.loaded));
+    } catch (e) {
+      if (kDebugMode) {
+        print("ConfirmProductsBloc _fetchUnconfirmedsById error => $e");
+      }
+      emit(FetchUnconfirmedByIdState(state: State.error));
     }
   }
 

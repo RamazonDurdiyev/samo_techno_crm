@@ -93,7 +93,7 @@ class RemoveProductBloc extends Bloc<RemoveProductEvent, RemoveProductState> {
       Emitter<RemoveProductState> emit, CartProductModel product) async {
     try {
       emit(SaveLocalToCartState(state: State.loading));
-      if (contractCtrl.text.isNotEmpty == true) {
+      if (contractCtrl.text.isNotEmpty == true || contractId.isNotEmpty) {
         final prefs = await SharedPreferences.getInstance();
         localProducts = prefs.getStringList("cart_products") ?? [];
         prefs

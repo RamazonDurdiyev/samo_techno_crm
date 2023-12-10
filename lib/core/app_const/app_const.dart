@@ -1,6 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
-const String BASE_URL = "https://0b54-82-215-104-42.ngrok-free.app/";
+const String BASE_URL = "https://c6e1-82-215-104-42.ngrok-free.app/";
 
 ///////// Time outs ///////////
 
@@ -21,10 +21,15 @@ const String FETCH_HISTORY_BY_ID =
     "${BASE_URL}api/v1/history/detail/";
 const String DELETE_PRODUCTS_API =
     "${BASE_URL}v1/out-products/sell";
-const String GET_UNCONFIRMED_PRODUCTS_API =
-    "${BASE_URL}product-api/v1/approve/get/unconfirmed/products";
+const String GET_UNCONFIRMED_PRODUCTS_API = "${BASE_URL}v1/approve/all";
+const String GET_UNCONFIRMED_PRODUCTS_BYID_API="${BASE_URL}v1/approve/details/";
 const String REFRESH_TOKEN_API = "${BASE_URL}api/v1/auth/refresh-token";
 const String LOGIN_API = "${BASE_URL}api/v1/auth/log-in";
 const String SEARCH_CATEGORIES_API = "${BASE_URL}v1/categories/search/";
 const String SEARCH_ADDRESS_API = "${BASE_URL}v1/trade/search/";
 const String ALL_PLACES_API = "${BASE_URL}v1/trade/get-all/places/by-status";
+const String GET_ALL_USERS_API = "${BASE_URL}v1/employee/list";
+const String GET_USER_DETAIL_API = "${BASE_URL}v1/employee/by/";
+const String ADD_USER = "${BASE_URL}v1/employee/add-user";
+const String BLOC_USER = "${BASE_URL}v1/employee/blocked";
+const String UNBLOC_USER = "${BASE_URL}v1/employee/unblocked";

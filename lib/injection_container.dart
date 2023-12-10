@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:samo_techno_crm/repo/place_repo/place_repo.dart';
 import 'package:samo_techno_crm/repo/product_repo/product_repo.dart';
+import 'package:samo_techno_crm/repo/user_repo/user_repo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/app_const/app_const.dart';
@@ -71,6 +72,13 @@ Future<void> init() async {
       networkInfo: sl.get(),
       client: sl.get(),
       prefs: prefs,
+    ),
+  );
+
+   sl.registerLazySingleton(
+    () => UserRepo(
+      networkInfo: sl.get(),
+      client: sl.get(),
     ),
   );
 }

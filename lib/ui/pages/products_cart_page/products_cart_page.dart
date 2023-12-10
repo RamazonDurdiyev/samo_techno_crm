@@ -370,65 +370,60 @@ class CartPage extends StatelessWidget {
     int parentIndex,
     String categoryName,
   ) {
-    return Card(
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(16),
+    return GestureDetector(
+      onTap: () {
+        bloc.add(TryToExpandEvent(index: parentIndex));
+        bloc.add(SortProductsEvent(categoryName: categoryName));
+      },
+      child: Card(
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(16),
+          ),
         ),
-      ),
-      elevation: 3,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const SizedBox(
-                  width: 16,
-                ),
-                const Icon(
-                  Icons.widgets_sharp,
-                  color: Colors.indigo,
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      categoryName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+        elevation: 3,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  const Icon(
+                    Icons.widgets_sharp,
+                    color: Colors.indigo,
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        categoryName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    const Text(
-                      "",
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                  ],
-                ),
-                const Expanded(child: SizedBox()),
-                const Text(
-                  "",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                      const Text(
+                        "",
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      ),
+                    ],
                   ),
-                ),
-                InkWell(
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(
-                      100,
+                  const Expanded(child: SizedBox()),
+                  const Text(
+                    "",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onTap: () {
-                    bloc.add(TryToExpandEvent(index: parentIndex));
-                    bloc.add(SortProductsEvent(categoryName: categoryName));
-                  },
-                  child: SizedBox(
+                  SizedBox(
                     height: 30,
                     width: 30,
                     child: Icon(
@@ -438,16 +433,16 @@ class CartPage extends StatelessWidget {
                       color: Colors.indigo,
                     ),
                   ),
-                ),
-                const SizedBox(
-                  width: 16,
-                ),
-              ],
-            ),
-            bloc.isItemExpanded[parentIndex] == true
-                ? _buildProductsChildList(bloc, categoryName)
-                : const SizedBox(),
-          ],
+                  const SizedBox(
+                    width: 16,
+                  ),
+                ],
+              ),
+              bloc.isItemExpanded[parentIndex] == true
+                  ? _buildProductsChildList(bloc, categoryName)
+                  : const SizedBox(),
+            ],
+          ),
         ),
       ),
     );

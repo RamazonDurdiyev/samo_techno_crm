@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart'hide State;
+import 'package:flutter/material.dart' hide State;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_bloc.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_event.dart';
 import 'package:samo_techno_crm/ui/pages/confirm_products_page/confirm_products_state.dart';
-import 'package:samo_techno_crm/ui/pages/history_page/history_detail_page/history_detail_page.dart';
+
+import 'confirm_details_page/confirm_details_page.dart';
+// import 'package:samo_techno_crm/ui/pages/history_page/history_detail_page/history_detail_page.dart';
 
 class ConfirmProductsPage extends StatelessWidget {
   const ConfirmProductsPage({super.key});
@@ -58,7 +60,9 @@ class ConfirmProductsPage extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-         const SizedBox(height: 8,),
+          const SizedBox(
+            height: 8,
+          ),
           _buildListView(bloc),
         ],
       ),
@@ -73,26 +77,24 @@ class ConfirmProductsPage extends StatelessWidget {
   }
 
   _buildListView(ConfirmProductsBloc bloc) {
-    return BlocBuilder<ConfirmProductsBloc,ConfirmProductsState>(
-      bloc: bloc,
-      builder: (context,state) {
-        final isLoading = state is FetchUnconfirmedsState && state.state == State.loading;
-        return ListView.builder(
-          padding: const EdgeInsets.all(0),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: isLoading ? 0 : bloc.unconfirmeds.length,
-          itemBuilder: (context, index) {
-            return _buildListItem(context,bloc,index);
-          },
-        );
-      }
-    );
+    return BlocBuilder<ConfirmProductsBloc, ConfirmProductsState>(
+        bloc: bloc,
+        builder: (context, state) {
+          final isLoading =
+              state is FetchUnconfirmedsState && state.state == State.loading;
+          return ListView.builder(
+            padding: const EdgeInsets.all(0),
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: isLoading ? 0 : bloc.unconfirmeds.length,
+            itemBuilder: (context, index) {
+              return _buildListItem(context, bloc, index);
+            },
+          );
+        });
   }
 
- 
-
-  _buildListItem(BuildContext context,ConfirmProductsBloc bloc,int index) {
+  _buildListItem(BuildContext context, ConfirmProductsBloc bloc, int index) {
     return Padding(
       padding: const EdgeInsets.only(
         left: 8,
@@ -112,8 +114,14 @@ class ConfirmProductsPage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return const HistoryDetailPage();
+                  return const ConfirmDetailsPage();
                 },
+                settings: RouteSettings(
+                  arguments:{
+                    "id": bloc.unconfirmeds[index].transactionId,
+                    "tradeStatus": bloc.unconfirmeds[index].tradeStatus,
+                  }
+                ),
               ),
             );
           },
@@ -131,9 +139,9 @@ class ConfirmProductsPage extends StatelessWidget {
                   const SizedBox(
                     height: 8,
                   ),
-                  const Row(
+                  Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.indigo,
                         child: CircleAvatar(
@@ -145,20 +153,20 @@ class ConfirmProductsPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 8,
                       ),
                       Text(
-                        "Falonchi",
-                        style: TextStyle(
+                        bloc.unconfirmeds[index].fio ?? "",
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Expanded(
+                      const Expanded(
                         child: SizedBox(),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.check_circle,
                         color: Colors.green,
                       ),
@@ -190,7 +198,8 @@ class ConfirmProductsPage extends StatelessWidget {
                           scrollAxis: Axis.horizontal,
                           fadingEdgeEndFraction: 0.2,
                           fadingEdgeStartFraction: 0.2,
-                          text: "${bloc.unconfirmeds[index].tradePlaceName}" "         ",
+                          text: "${bloc.unconfirmeds[index].tradePlace}"
+                              "         ",
                         ),
                       ),
                     ],
@@ -207,7 +216,7 @@ class ConfirmProductsPage extends StatelessWidget {
                         child: SizedBox(),
                       ),
                       Text(
-                        bloc.unconfirmeds[index].date.toString(),
+                        bloc.unconfirmeds[index].createdDate.toString(),
                         style: const TextStyle(
                           fontSize: 16,
                         ),

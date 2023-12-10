@@ -15,5 +15,12 @@ class FetchUnconfirmedsState extends ConfirmProductsState{
   @override
   List<Object?> get props => [state];
 }
+class FetchUnconfirmedByIdState extends ConfirmProductsState{
+  final State state;
+
+  FetchUnconfirmedByIdState({required this.state});
+  @override
+  List<Object?> get props => [state];
+}
 
 enum State {initial,loading,loaded,error}

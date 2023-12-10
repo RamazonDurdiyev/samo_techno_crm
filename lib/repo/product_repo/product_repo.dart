@@ -143,8 +143,9 @@ class ProductRepo {
 
   Future<List<RProductModel>> rFetchProductById(int id) async {
     if (await networkInfo.isConnected) {
+      print("r fetch id => $id");
       final res = await client.get(
-        "${REMOVE_GET_PRODUCT_BY_ID}1",
+        "$REMOVE_GET_PRODUCT_BY_ID$id",
         options: Options(
           headers: {"Access-Control-Allow-Origin": ":*"},
         ),
@@ -186,4 +187,29 @@ class ProductRepo {
       throw NetworkException();
     }
   }
+
+
+
+  Future<List<UnconfirmedByIdProductsModel>> fetchUnconfirmedById(String status,int transactionId) async {
+    if (await networkInfo.isConnected) {
+      final res = await client.get(
+        "$GET_UNCONFIRMED_PRODUCTS_BYID_API$transactionId",
+        queryParameters: {"status":status},
+        options: Options(
+          headers: {"Access-Control-Allow-Origin": ":*"},
+        ),
+      );
+      if (kDebugMode) {
+        print("fetchUncorfirmedById data => $res");
+      }
+      return res.data["data"].map<UnconfirmedByIdProductsModel>(
+        (product) {
+          return UnconfirmedByIdProductsModel.fromJson(product);
+        },
+      ).toList();
+    } else {
+      throw NetworkException();
+    }
+  }
+
 }
